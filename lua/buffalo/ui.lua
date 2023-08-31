@@ -54,7 +54,7 @@ local function create_window()
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local win_config = {
-    title = "Buffers",
+    title = "Buffalo",
     line = math.floor(((vim.o.lines - height) / 2) - 1),
     col = math.floor((vim.o.columns - width) / 2),
     minwidth = width,
@@ -244,7 +244,7 @@ local function set_win_buf_options(contents, current_buf_line)
   for key, value in pairs(config.win_extra_options) do
     vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
   end
-  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo-menu")
+  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo")
   vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
   vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
   vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
@@ -301,18 +301,7 @@ function M.toggle_quick_menu()
         current_buf_line = line
       end
       local display_filename = current_mark.filename
-      if not string_starts(display_filename, "term://") then
-        if config.short_file_names then
-          display_filename = utils.get_short_file_name(display_filename, current_short_fns)
-          current_short_fns[display_filename] = true
-        else
-          display_filename = utils.normalize_path(display_filename)
-        end
-      else
-        if config.short_term_names then
-          display_filename = utils.get_short_term_name(display_filename)
-        end
-      end
+      display_filename = utils.normalize_path(display_filename)
       contents[line] = string.format("%s", display_filename)
       line = line + 1
     end
