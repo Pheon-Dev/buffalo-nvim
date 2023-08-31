@@ -8,8 +8,8 @@ local marks = require("buffalo").marks
 
 local M = {}
 
-buffalo_win_id = nil
-buffalo_bufh = nil
+Buffalo_win_id = nil
+Buffalo_bufh = nil
 local initial_marks = {}
 local config = buffalo.get_config()
 
@@ -18,10 +18,10 @@ local config = buffalo.get_config()
 local function close_menu(force_save)
   force_save = force_save or false
 
-  vim.api.nvim_win_close(buffalo_win_id, true)
+  vim.api.nvim_win_close(Buffalo_win_id, true)
 
-  buffalo_win_id = nil
-  buffalo_bufh = nil
+  Buffalo_win_id = nil
+  Buffalo_bufh = nil
 end
 
 local function create_window()
@@ -61,7 +61,7 @@ local function create_window()
     minheight = height,
     borderchars = borderchars,
   }
-  local buffalo_win_id, win = popup.create(bufnr, win_config)
+  local Buffalo_win_id, win = popup.create(bufnr, win_config)
 
   if config.highlight ~= "" then
     vim.api.nvim_set_option_value(
@@ -73,7 +73,7 @@ local function create_window()
 
   return {
     bufnr = bufnr,
-    win_id = buffalo_win_id,
+    win_id = Buffalo_win_id,
   }
 end
 
@@ -181,14 +181,14 @@ end
 
 local function set_menu_keybindings()
   vim.api.nvim_buf_set_keymap(
-    buffalo_bufh,
+    Buffalo_bufh,
     "n",
     "q",
     "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
     { silent = true }
   )
   vim.api.nvim_buf_set_keymap(
-    buffalo_bufh,
+    Buffalo_bufh,
     "n",
     "<ESC>",
     "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
@@ -196,7 +196,7 @@ local function set_menu_keybindings()
   )
   for _, value in pairs(config.select_menu_item_commands) do
     vim.api.nvim_buf_set_keymap(
-      buffalo_bufh,
+      Buffalo_bufh,
       "n",
       value.key,
       "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
@@ -206,7 +206,7 @@ local function set_menu_keybindings()
   vim.cmd(
     string.format(
       "autocmd BufModifiedSet <buffer=%s> set nomodified",
-      buffalo_bufh
+      Buffalo_bufh
     )
   )
   vim.cmd(
@@ -217,7 +217,7 @@ local function set_menu_keybindings()
     string.format(
       "autocmd BufWriteCmd <buffer=%s>" ..
       " lua require('buffalo.ui').on_menu_save()",
-      buffalo_bufh
+      Buffalo_bufh
     )
   )
   -- Go to file hitting its line number
@@ -225,7 +225,7 @@ local function set_menu_keybindings()
   for i = 1, #str do
     local c = str:sub(i, i)
     vim.api.nvim_buf_set_keymap(
-      buffalo_bufh,
+      Buffalo_bufh,
       "n",
       c,
       string.format(
@@ -240,22 +240,22 @@ end
 
 
 local function set_win_buf_options(contents, current_buf_line)
-  vim.api.nvim_set_option_value("number", true, { win = buffalo_win_id })
+  vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
   for key, value in pairs(config.win_extra_options) do
-    vim.api.nvim_set_option_value(key, value, { win = buffalo_win_id })
+    vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
   end
-  vim.api.nvim_buf_set_name(buffalo_bufh, "buffalo-menu")
-  vim.api.nvim_buf_set_lines(buffalo_bufh, 0, #contents, false, contents)
-  vim.api.nvim_buf_set_option(buffalo_bufh, "filetype", "buffalo")
-  vim.api.nvim_buf_set_option(buffalo_bufh, "buftype", "acwrite")
-  vim.api.nvim_buf_set_option(buffalo_bufh, "bufhidden", "delete")
+  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo-menu")
+  vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "bufhidden", "delete")
   vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
 end
 
 
 function M.toggle_quick_menu()
   log.trace("toggle_quick_menu()")
-  if buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(buffalo_win_id) then
+  if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
     if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
       M.on_menu_save()
     end
@@ -274,8 +274,8 @@ function M.toggle_quick_menu()
   local contents = {}
   initial_marks = {}
 
-  buffalo_win_id = win_info.win_id
-  buffalo_bufh = win_info.bufnr
+  Buffalo_win_id = win_info.win_id
+  Buffalo_bufh = win_info.bufnr
 
   update_marks()
 
@@ -322,7 +322,7 @@ function M.toggle_quick_menu()
   set_menu_keybindings()
   for _, modified_line in pairs(modfied_lines) do
     vim.api.nvim_buf_add_highlight(
-      buffalo_bufh,
+      Buffalo_bufh,
       -1,
       "BufferManagerModified",
       modified_line - 1,
@@ -344,7 +344,7 @@ end
 
 local function get_menu_items()
   log.trace("_get_menu_items()")
-  local lines = vim.api.nvim_buf_get_lines(buffalo_bufh, 0, -1, true)
+  local lines = vim.api.nvim_buf_get_lines(Buffalo_bufh, 0, -1, true)
   local indices = {}
 
   for _, line in pairs(lines) do
