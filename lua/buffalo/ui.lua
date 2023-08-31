@@ -65,7 +65,7 @@ local function create_window()
 
   if config.highlight ~= "" then
     vim.api.nvim_set_option_value(
-      "winhighlight",
+      "BuffaloBorder",
       config.highlight,
       { win = win.border.win_id }
     )
