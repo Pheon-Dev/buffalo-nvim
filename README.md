@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-<img src="https://i.pinimg.com/1200x/2e/fd/69/2efd690509b14071d613bf54195ce30c.jpg" alt="buffalo-nvim" />
+<img size="100x50" src="https://i.pinimg.com/1200x/2e/fd/69/2efd690509b14071d613bf54195ce30c.jpg" alt="buffalo-nvim" />
 </p>
 
 <p align="center">
