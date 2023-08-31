@@ -324,7 +324,7 @@ function M.toggle_quick_menu()
     vim.api.nvim_buf_add_highlight(
       Buffalo_bufh,
       -1,
-      "BufferManagerModified",
+      "BuffaloModified",
       modified_line - 1,
       0,
       -1
