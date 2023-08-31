@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-<img size="100x50" src="https://i.pinimg.com/1200x/2e/fd/69/2efd690509b14071d613bf54195ce30c.jpg" alt="buffalo-nvim" />
+<img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.artstation.com%2Fartwork%2Fb5vP9g&psig=AOvVaw2i6QYklqZvXrGiyorkvp4y&ust=1693554666740000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCNiBv_S0hoEDFQAAAAAdAAAAABAZ" alt="buffalo-nvim" />
 </p>
 
 <p align="center">
