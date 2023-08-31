@@ -1,5 +1,4 @@
-vim.api.nvim_create_user_command(
-  'BuffaloToggle',
-  require('buffalo').toggle,
-  {}
-)
+if vim.g.buffalo_loaded ~= nil then
+  return
+end
+vim.g.buffalo_loaded = 1
