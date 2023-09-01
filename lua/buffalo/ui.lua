@@ -27,49 +27,28 @@ end
 local function create_window()
   log.trace("_create_window()")
 
-  local width = 60
-  local height = 10
-
-  if config then
-    if config.width ~= nil then
-      if config.width <= 1 then
-        local gwidth = vim.api.nvim_list_uis()[1].width
-        width = math.floor(gwidth * config.width)
-      else
-        width = config.width
-      end
-    end
-
-    if config.height ~= nil then
-      if config.height <= 1 then
-        local gheight = vim.api.nvim_list_uis()[1].height
-        height = math.floor(gheight * config.height)
-      else
-        height = config.height
-      end
-    end
-  end
+  local width = config.width or 60
+  local height = config.height or 10
 
   local borderchars = config.borderchars
+      or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
   local bufnr = vim.api.nvim_create_buf(false, false)
 
-  local win_config = {
+  local Buffalo_win_id, win = popup.create(bufnr, {
     title = "Buffalo",
+    highlight = "BuffaloWindow",
     line = math.floor(((vim.o.lines - height) / 2) - 1),
     col = math.floor((vim.o.columns - width) / 2),
     minwidth = width,
     minheight = height,
     borderchars = borderchars,
-  }
-  local Buffalo_win_id, win = popup.create(bufnr, win_config)
+  })
 
-  if config.highlight ~= "" then
-    vim.api.nvim_set_option_value(
-      "BuffaloBorder",
-      config.highlight,
-      { win = win.border.win_id }
-    )
-  end
+  vim.api.nvim_win_set_option(
+    win.border.win_id,
+    "winhl",
+    "Normal:BuffaloBorder"
+  )
 
   return {
     bufnr = bufnr,
@@ -178,8 +157,70 @@ local function update_marks()
   end
 end
 
+function M.toggle_quick_menu()
+  log.trace("toggle_quick_menu()")
+  if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
+    if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
+      M.on_menu_save()
+    end
+    close_menu(true)
+    update_buffers()
+    return
+  end
+  local current_buf_id = -1
+  if config.focus_alternate_buffer then
+    current_buf_id = vim.fn.bufnr("#")
+  else
+    current_buf_id = vim.fn.bufnr()
+  end
 
-local function set_menu_keybindings()
+  local win_info = create_window()
+  local contents = {}
+  initial_marks = {}
+
+  Buffalo_win_id = win_info.win_id
+  Buffalo_bufh = win_info.bufnr
+
+  update_marks()
+
+  -- set initial_marks
+  local current_buf_line = 1
+  local line = 1
+  local modfied_lines = {}
+  local current_short_fns = {}
+  for idx, mark in pairs(marks) do
+    -- Add buffer only if it does not already exist
+    if vim.fn.buflisted(mark.buf_id) ~= 1 then
+      marks[idx] = nil
+    else
+      local current_mark = marks[idx]
+      initial_marks[idx] = {
+        filename = current_mark.filename,
+        buf_id = current_mark.buf_id,
+      }
+      if vim.bo[current_mark.buf_id].modified then
+        table.insert(modfied_lines, line)
+      end
+      if current_mark.buf_id == current_buf_id then
+        current_buf_line = line
+      end
+      local display_filename = current_mark.filename
+      display_filename = utils.normalize_path(display_filename)
+      contents[line] = string.format("%s", display_filename)
+      line = line + 1
+    end
+  end
+
+  vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
+  for key, value in pairs(config.win_extra_options) do
+    vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
+  end
+  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo")
+  vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
+  vim.api.nvim_buf_set_option(Buffalo_bufh, "bufhidden", "delete")
+  vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
   vim.api.nvim_buf_set_keymap(
     Buffalo_bufh,
     "n",
@@ -236,79 +277,6 @@ local function set_menu_keybindings()
       {}
     )
   end
-end
-
-
-local function set_win_buf_options(contents, current_buf_line)
-  vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
-  for key, value in pairs(config.win_extra_options) do
-    vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
-  end
-  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo")
-  vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
-  vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
-  vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
-  vim.api.nvim_buf_set_option(Buffalo_bufh, "bufhidden", "delete")
-  vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
-end
-
-
-function M.toggle_quick_menu()
-  log.trace("toggle_quick_menu()")
-  if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
-    if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
-      M.on_menu_save()
-    end
-    close_menu(true)
-    update_buffers()
-    return
-  end
-  local current_buf_id = -1
-  if config.focus_alternate_buffer then
-    current_buf_id = vim.fn.bufnr("#")
-  else
-    current_buf_id = vim.fn.bufnr()
-  end
-
-  local win_info = create_window()
-  local contents = {}
-  initial_marks = {}
-
-  Buffalo_win_id = win_info.win_id
-  Buffalo_bufh = win_info.bufnr
-
-  update_marks()
-
-  -- set initial_marks
-  local current_buf_line = 1
-  local line = 1
-  local modfied_lines = {}
-  local current_short_fns = {}
-  for idx, mark in pairs(marks) do
-    -- Add buffer only if it does not already exist
-    if vim.fn.buflisted(mark.buf_id) ~= 1 then
-      marks[idx] = nil
-    else
-      local current_mark = marks[idx]
-      initial_marks[idx] = {
-        filename = current_mark.filename,
-        buf_id = current_mark.buf_id,
-      }
-      if vim.bo[current_mark.buf_id].modified then
-        table.insert(modfied_lines, line)
-      end
-      if current_mark.buf_id == current_buf_id then
-        current_buf_line = line
-      end
-      local display_filename = current_mark.filename
-      display_filename = utils.normalize_path(display_filename)
-      contents[line] = string.format("%s", display_filename)
-      line = line + 1
-    end
-  end
-
-  set_win_buf_options(contents, current_buf_line)
-  set_menu_keybindings()
   for _, modified_line in pairs(modfied_lines) do
     vim.api.nvim_buf_add_highlight(
       Buffalo_bufh,
