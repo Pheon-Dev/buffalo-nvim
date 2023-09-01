@@ -1,18 +1,16 @@
-local Path    = require("plenary.path")
-local buffalo = require("buffalo")
-local popup   = require("plenary.popup")
-local utils   = require("buffalo.utils")
-local log     = require("buffalo.dev").log
-local marks   = require("buffalo").marks
-local keys    = require("buffalo.keys")
+local Path          = require("plenary.path")
+local buffalo       = require("buffalo")
+local popup         = require("plenary.popup")
+local utils         = require("buffalo.utils")
+local log           = require("buffalo.dev").log
+local marks         = require("buffalo").marks
 
+local M             = {}
 
-local M = {}
-
-Buffalo_win_id = nil
-Buffalo_bufh = nil
+Buffalo_win_id      = nil
+Buffalo_bufh        = nil
 local initial_marks = {}
-local config = buffalo.get_config()
+local config        = buffalo.get_config()
 
 -- We save before we close because we use the state of the buffer as the list
 -- of items.
