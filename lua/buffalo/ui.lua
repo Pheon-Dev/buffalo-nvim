@@ -1,9 +1,10 @@
-local Path = require("plenary.path")
+local Path    = require("plenary.path")
 local buffalo = require("buffalo")
-local popup = require("plenary.popup")
-local utils = require("buffalo.utils")
-local log = require("buffalo.dev").log
-local marks = require("buffalo").marks
+local popup   = require("plenary.popup")
+local utils   = require("buffalo.utils")
+local log     = require("buffalo.dev").log
+local marks   = require("buffalo").marks
+local keys    = require("buffalo.keys")
 
 
 local M = {}
@@ -186,7 +187,7 @@ function M.toggle_quick_menu()
   -- set initial_marks
   local current_buf_line = 1
   local line = 1
-  local modfied_lines = {}
+  local modified_lines = {}
   local current_short_fns = {}
   for idx, mark in pairs(marks) do
     -- Add buffer only if it does not already exist
@@ -199,7 +200,7 @@ function M.toggle_quick_menu()
         buf_id = current_mark.buf_id,
       }
       if vim.bo[current_mark.buf_id].modified then
-        table.insert(modfied_lines, line)
+        table.insert(modified_lines, line)
       end
       if current_mark.buf_id == current_buf_id then
         current_buf_line = line
@@ -221,67 +222,12 @@ function M.toggle_quick_menu()
   vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
   vim.api.nvim_buf_set_option(Buffalo_bufh, "bufhidden", "delete")
   vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
-  vim.api.nvim_buf_set_keymap(
-    Buffalo_bufh,
-    "n",
-    "q",
-    "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
-    { silent = true }
-  )
-  vim.api.nvim_buf_set_keymap(
-    Buffalo_bufh,
-    "n",
-    "<ESC>",
-    "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
-    { silent = true }
-  )
-  for _, value in pairs(config.select_menu_item_commands) do
-    vim.api.nvim_buf_set_keymap(
-      Buffalo_bufh,
-      "n",
-      value.key,
-      "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
-      {}
-    )
-  end
-  vim.cmd(
-    string.format(
-      "autocmd BufModifiedSet <buffer=%s> set nomodified",
-      Buffalo_bufh
-    )
-  )
-  vim.cmd(
-    "autocmd BufLeave <buffer> ++nested ++once silent" ..
-    " lua require('buffalo.ui').toggle_quick_menu()"
-  )
-  vim.cmd(
-    string.format(
-      "autocmd BufWriteCmd <buffer=%s>" ..
-      " lua require('buffalo.ui').on_menu_save()",
-      Buffalo_bufh
-    )
-  )
-  -- Go to file hitting its line number
-  local str = config.line_keys
-  for i = 1, #str do
-    local c = str:sub(i, i)
-    vim.api.nvim_buf_set_keymap(
-      Buffalo_bufh,
-      "n",
-      c,
-      string.format(
-        "<Cmd>%s <bar> lua require('buffalo.ui')" ..
-        ".select_menu_item()<CR>",
-        i
-      ),
-      {}
-    )
-  end
-  for _, modified_line in pairs(modfied_lines) do
+  keys()
+  for _, modified_line in pairs(modified_lines) do
     vim.api.nvim_buf_add_highlight(
       Buffalo_bufh,
       -1,
-      "BufferManagerModified",
+      "BuffaloModified",
       modified_line - 1,
       0,
       -1
