@@ -5,7 +5,7 @@ local merge_tables = require("buffalo.utils").merge_tables
 --
 local M = {}
 
-BuffaloConfig = BuffaloConfig or {}
+M.Config = M.Config or {}
 
 M.marks = {}
 
@@ -55,13 +55,13 @@ function M.setup(config)
 
   local complete_config = merge_tables(default_config, config)
 
-  BuffaloConfig = complete_config
-  log.debug("setup(): Config", BuffaloConfig)
+  M.Config = complete_config
+  log.debug("setup(): Config", M.Config)
 end
 
 function M.get_config()
   log.trace("get_config()")
-  return BuffaloConfig or {}
+  return M.Config or {}
 end
 
 function M.buffers()
