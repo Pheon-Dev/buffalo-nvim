@@ -9,7 +9,26 @@ M.Config = M.Config or {}
 
 M.marks = {}
 
-function M.initialize_marks()
+function M.buffers()
+  local bufs = vim.api.nvim_list_bufs()
+  local count = 0
+  for _, buf in pairs(bufs) do
+    count = count + 1
+  end
+  return count
+end
+
+function M.tabpages()
+  local tabs = vim.api.nvim_list_tabpages()
+  local count = 0
+  print(tabs)
+  for _, tab in pairs(tabs) do
+    count = count + 1
+  end
+  return count
+end
+
+function M.init_buffers()
   local buffers = vim.api.nvim_list_bufs()
 
   for idx = 1, #buffers do
@@ -64,28 +83,8 @@ function M.get_config()
   return M.Config or {}
 end
 
-function M.buffers()
-  local bufs = vim.api.nvim_list_bufs()
-  bufs = vim.tbl_filter(function(buf)
-    local is_loaded = vim.api.nvim_buf_is_loaded(buf)
-    local is_listed = vim.fn.buflisted(buf) == 1
-
-    if not (is_loaded and is_listed) then
-      return false
-    end
-
-    return true
-  end, bufs)
-  local count = 0
-  for _, buf in pairs(bufs) do
-    count = count + 1
-  end
-  return count
-end
-
--- Sets a default config with no values
 M.setup()
 
-M.initialize_marks()
+M.init_buffers()
 
 return M
