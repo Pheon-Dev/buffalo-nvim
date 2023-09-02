@@ -1,6 +1,7 @@
 local Dev = require("buffalo.dev")
 local log = Dev.log
 local buffer_is_valid = require("buffalo.utils").buffer_is_valid
+local tab_is_valid = require("buffalo.utils").tab_is_valid
 local merge_tables = require("buffalo.utils").merge_tables
 --
 local M = {}
@@ -8,6 +9,7 @@ local M = {}
 M.Config = M.Config or {}
 
 M.marks = {}
+M.tab_marks = {}
 
 function M.buffers()
   local bufs = vim.api.nvim_list_bufs()
@@ -35,6 +37,26 @@ function M.tabpages()
     count = count + 1
   end
   return count
+end
+
+function M.init_tabs()
+  local tabs = vim.api.nvim_list_tabpages()
+
+  for idx = 1, #tabs do
+    local tab_id = tabs[idx]
+    local tab_name = vim.api.nvim_tabpage_get_win(tab_id)
+    local filename = tab_name
+    -- if buffer is listed, then add to contents and marks
+    if tab_is_valid(tab_id, tab_name) then
+      table.insert(
+        M.tab_marks,
+        {
+          filename = filename,
+          tab_id = tab_id,
+        }
+      )
+    end
+  end
 end
 
 function M.init_buffers()
@@ -95,5 +117,6 @@ end
 M.setup()
 
 M.init_buffers()
+M.init_tabs()
 
 return M
