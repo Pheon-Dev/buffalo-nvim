@@ -84,6 +84,11 @@ function M.buffer_is_valid(buf_id, buf_name)
       and buf_name ~= ""
 end
 
+function M.tab_is_valid(tab_id, tab_name)
+  return 1 == vim.api.nvim_tabpage_is_valid(tab_id)
+      and tab_name ~= ""
+end
+
 -- tbl_deep_extend does not work the way you would think
 local function merge_table_impl(t1, t2)
   for k, v in pairs(t2) do
