@@ -1,16 +1,18 @@
-local Path          = require("plenary.path")
-local buffalo       = require("buffalo")
-local popup         = require("plenary.popup")
-local utils         = require("buffalo.utils")
-local log           = require("buffalo.dev").log
-local marks         = require("buffalo").marks
+local Path              = require("plenary.path")
+local buffalo           = require("buffalo")
+local popup             = require("plenary.popup")
+local utils             = require("buffalo.utils")
+local log               = require("buffalo.dev").log
+local marks             = require("buffalo").marks
+local tab_marks         = require("buffalo").tab_marks
 
-local M             = {}
+local M                 = {}
 
-Buffalo_win_id      = nil
-Buffalo_bufh        = nil
-local initial_marks = {}
-local config        = buffalo.get_config()
+Buffalo_win_id          = nil
+Buffalo_bufh            = nil
+local initial_marks     = {}
+local initial_tab_marks = {}
+local config            = buffalo.get_config()
 
 -- We save before we close because we use the state of the buffer as the list
 -- of items.
@@ -23,8 +25,8 @@ local function close_menu(force_save)
   Buffalo_bufh = nil
 end
 
-local function create_window()
-  log.trace("_create_window()")
+local function create_buf_window()
+  log.trace("_create_buf_window()")
 
   local width = config.width or 60
   local height = config.height or 10
@@ -34,7 +36,39 @@ local function create_window()
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local Buffalo_win_id, win = popup.create(bufnr, {
-    title = "Buffalo",
+    title = "Buffalo [buffers]",
+    highlight = "BuffaloWindow",
+    line = math.floor(((vim.o.lines - height) / 2) - 1),
+    col = math.floor((vim.o.columns - width) / 2),
+    minwidth = width,
+    minheight = height,
+    borderchars = borderchars,
+  })
+
+  vim.api.nvim_win_set_option(
+    win.border.win_id,
+    "winhl",
+    "Normal:BuffaloBorder"
+  )
+
+  return {
+    bufnr = bufnr,
+    win_id = Buffalo_win_id,
+  }
+end
+
+local function create_tab_window()
+  log.trace("_create_tab_window()")
+
+  local width = config.width or 60
+  local height = config.height or 10
+
+  local borderchars = config.borderchars
+      or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+  local bufnr = vim.api.nvim_create_buf(false, false)
+
+  local Buffalo_win_id, win = popup.create(bufnr, {
+    title = "Buffalo [tabpages]",
     highlight = "BuffaloWindow",
     line = math.floor(((vim.o.lines - height) / 2) - 1),
     col = math.floor((vim.o.columns - width) / 2),
@@ -78,6 +112,16 @@ local function is_buffer_in_marks(bufnr)
   return false
 end
 
+local function is_tab_in_tab_marks(bufnr)
+  for _, mark in pairs(tab_marks) do
+    if mark.buf_id == bufnr then
+      return true
+    end
+  end
+  return false
+end
+
+
 
 local function get_mark_by_name(name, specific_marks)
   local ref_name = nil
@@ -103,7 +147,6 @@ local function get_mark_by_name(name, specific_marks)
   return nil
 end
 
-
 local function update_buffers()
   -- Check deletions
   for _, mark in pairs(initial_marks) do
@@ -125,6 +168,29 @@ local function update_buffers()
     end
   end
 end
+
+local function update_tabs()
+  -- Check deletions
+  for _, mark in pairs(initial_tab_marks) do
+    if not is_tab_in_tab_marks(mark.buf_id) then
+      if can_be_deleted(mark.filename, mark.buf_id) then
+        vim.api.nvim_buf_clear_namespace(mark.buf_id, -1, 1, -1)
+        vim.api.nvim_buf_delete(mark.buf_id, {})
+      end
+    end
+  end
+
+  -- Check additions
+  for idx, mark in pairs(marks) do
+    local bufnr = mark.filename
+    -- Add buffer only if it does not already exist
+    if bufnr == -1 then
+      vim.cmd("badd " .. mark.filename)
+      marks[idx].buf_id = vim.fn.bufnr(mark.filename)
+    end
+  end
+end
+
 
 local function remove_mark(idx)
   marks[idx] = nil
@@ -173,7 +239,7 @@ function M.toggle_quick_menu()
     current_buf_id = vim.fn.bufnr()
   end
 
-  local win_info = create_window()
+  local win_info = create_buf_window()
   local contents = {}
   initial_marks = {}
 
@@ -279,6 +345,136 @@ function M.toggle_quick_menu()
   for _, modified_line in pairs(modified_lines) do
     vim.api.nvim_buf_add_highlight(
       Buffalo_bufh,
+      -1,
+      "BuffaloModified",
+      modified_line - 1,
+      0,
+      -1
+    )
+  end
+end
+
+function M.toggle_tab_menu()
+  log.trace("toggle_tab_menu()")
+  if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
+    close_menu(true)
+    return
+  end
+  local current_tab_id = vim.api.nvim_tabpage_get_number(vim.api.nvim_get_current_tabpage())
+  local tabs = vim.api.nvim_list_tabpages()
+  local o = {}
+
+  local wins = vim.api.nvim_tabpage_list_wins(current_tab_id)
+  local win_info = create_tab_window()
+  local contents = {}
+  initial_tab_marks = {}
+
+  Buffalo_win_id = win_info.win_id
+  Buffalo_tabh = win_info.bufnr
+
+  update_tabs()
+  --
+  -- -- set initial_tabs
+  local current_tab_line = 1
+  local line = 1
+  local modified_lines = {}
+  local current_short_fns = {}
+
+  -- for idx, tab in pairs(tabs) do
+  --   local current_tab = tabs[idx]
+  --   contents[line] = string.format("%s", current_tab)
+  --   line = line + 1
+  -- end
+
+  for idx, mark in pairs(tab_marks) do
+    -- Add buffer only if it does not already exist
+    -- if vim.fn.buflisted(mark.tab_id) ~= 1 then
+    --   tab_marks[idx] = nil
+    -- else
+    local current_mark = tab_marks[idx]
+    initial_tab_marks[idx] = {
+      filename = current_mark.filename,
+      tab_id = current_mark.tab_id,
+    }
+    -- if vim.bo[current_mark.tab_id].modified then
+    --   table.insert(modified_lines, line)
+    -- end
+    -- if current_mark.tab_id == current_tab_id then
+    --   current_tab_line = line
+    -- end
+    local display_filename = current_mark.filename
+    -- display_filename = utils.normalize_path(display_filename)
+    contents[line] = string.format("%s", display_filename)
+    line = line + 1
+    -- end
+  end
+  vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
+
+  vim.api.nvim_buf_set_name(Buffalo_tabh, "buffalo-tabs")
+  vim.api.nvim_buf_set_lines(Buffalo_tabh, 0, #contents, false, contents)
+  vim.api.nvim_buf_set_option(Buffalo_tabh, "filetype", "buffalo")
+  vim.api.nvim_buf_set_option(Buffalo_tabh, "buftype", "acwrite")
+  vim.api.nvim_buf_set_option(Buffalo_tabh, "bufhidden", "delete")
+  vim.cmd(string.format(":call cursor(%d, %d)", current_tab_line, 1))
+  vim.api.nvim_buf_set_keymap(
+    Buffalo_tabh,
+    "n",
+    "q",
+    "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
+    { silent = true }
+  )
+  vim.api.nvim_buf_set_keymap(
+    Buffalo_tabh,
+    "n",
+    "<ESC>",
+    "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
+    { silent = true }
+  )
+  for _, value in pairs(config.select_menu_item_commands) do
+    vim.api.nvim_buf_set_keymap(
+      Buffalo_tabh,
+      "n",
+      value.key,
+      "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
+      {}
+    )
+  end
+  vim.cmd(
+    string.format(
+      "autocmd BufModifiedSet <buffer=%s> set nomodified",
+      Buffalo_tabh
+    )
+  )
+  vim.cmd(
+    "autocmd BufLeave <buffer> ++nested ++once silent" ..
+    " lua require('buffalo.ui').toggle_tab_menu()"
+  )
+  vim.cmd(
+    string.format(
+      "autocmd BufWriteCmd <buffer=%s>" ..
+      " lua require('buffalo.ui').on_menu_save()",
+      Buffalo_tabh
+    )
+  )
+  -- Go to file hitting its line number
+  local str = config.line_keys
+  for i = 1, #str do
+    local c = str:sub(i, i)
+    vim.api.nvim_buf_set_keymap(
+      Buffalo_tabh,
+      "n",
+      c,
+      string.format(
+        "<Cmd>%s <bar> lua require('buffalo.ui')" ..
+        ".select_menu_item()<CR>",
+        i
+      ),
+      {}
+    )
+  end
+  for _, modified_line in pairs(modified_lines) do
+    vim.api.nvim_buf_add_highlight(
+      Buffalo_tabh,
       -1,
       "BuffaloModified",
       modified_line - 1,
