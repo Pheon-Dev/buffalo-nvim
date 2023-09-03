@@ -359,6 +359,9 @@ function M.toggle_tab_menu()
 
   for idx = 1, #tabs do
     local current_tab = api.get_tab_number(idx)
+    if current_tab == current_tab_id then
+      current_tab_line = idx
+    end
     local twins = api.get_tab_wins(idx)
     if current_tab == 0 then
       return
