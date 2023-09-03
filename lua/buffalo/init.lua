@@ -44,18 +44,19 @@ function M.init_tabs()
 
   for idx = 1, #tabs do
     local tab_id = tabs[idx]
-    local tab_name = vim.api.nvim_tabpage_get_win(tab_id)
-    local filename = tab_name
+    local tab_name = vim.api.nvim_tabpage_get_number(tab_id)
+    local tab_wins = vim.api.nvim_tabpage_list_wins(tab_id)
     -- if buffer is listed, then add to contents and marks
-    if tab_is_valid(tab_id, tab_name) then
-      table.insert(
-        M.tab_marks,
-        {
-          filename = filename,
-          tab_id = tab_id,
-        }
-      )
-    end
+    -- if tab_is_valid(tab_id, tab_name, tab_wins) then
+    table.insert(
+      M.tab_marks,
+      {
+        tab_name = tab_name,
+        tab_id = tab_id,
+        tab_wins = tab_wins,
+      }
+    )
+    -- end
   end
 end
 
