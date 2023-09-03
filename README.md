@@ -83,8 +83,8 @@ require("buffalo").setup({
       command = "tabclose"
     },
     h = {
-      key = "<C-o>",
-      command = "tabonly"
+      key = "<C-n>",
+      command = "tabnew"
     }
   },
   buffer_commands = {
