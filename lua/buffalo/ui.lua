@@ -364,7 +364,7 @@ function M.toggle_tab_menu()
     if current_tab == 0 then
       return
     end
-    contents[idx] = string.format("󰓩 %s: [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
+    contents[idx] = string.format(" 󰓩 Tab %s [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
   end
 
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
