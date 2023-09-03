@@ -11,9 +11,9 @@
 </p>
 
 <p align="center">
-This plugin provides the total number of open buffers which can be displayed
-in the statusline, tabline or winbar.
-There is an option to delete, pin or mark them across sessions.
+This is a [harpoon](https://github.com/ThePrimeagen/harpoon) like plugin that provides a UI
+to open buffers or tabs (+windows). Their respective totals can be displayed on the statusline,
+  tabline or winbar.
 </p>
 
 ## Installation
@@ -42,7 +42,7 @@ Plug 'Pheon-Dev/buffalo-nvim'
 
 ```lua
 -- default config
-require('buffalo').buffers()
+require('buffalo').setup({})
 ```
 
 ## Usage
@@ -52,18 +52,74 @@ require('buffalo').buffers()
 ...
 sections = {
   ...
-      lualine_x = {
-          {
-            function()
-              local buffers = require("buffalo").buffers()
-              return "  " .. buffers
-            end,
-            color = { fg = "#ffaa00", bg = "#24273a",},
-          }
-        },
-      ...
+  lualine_x = {
+      {
+        function()
+          local buffers = require("buffalo").buffers()
+          local tabpages = require("buffalo").tabpages()
+          return "󱂬 " .. buffers .. " 󰓩 " .. tabpages
+        end,
+        color = { fg = "#ffaa00", bg = "#24273a",},
+      }
+    },
+  ...
     },
 ...
+```
+
+---
+
+## Config
+
+```lua
+require("buffalo").setup({
+  tab_commands = {
+    edit = {
+      key = "<CR>",
+      command = "tabnext"
+    },
+    v = {
+      key = "<C-x>",
+      command = "tabclose"
+    },
+    h = {
+      key = "<C-o>",
+      command = "tabonly"
+    }
+  },
+  buffer_commands = {
+    edit = {
+      key = "<CR>",
+      command = "edit"
+    },
+    v = {
+      key = "<C-v>",
+      command = "vsplit"
+    },
+    h = {
+      key = "<C-h>",
+      command = "split"
+    }
+  },
+})
+```
+
+---
+
+## Mappings
+
+```lua
+local opts = { noremap = true }
+local map = vim.keymap.set
+local buffalo = require("buffalo.ui")
+
+map({ 't', 'n' }, '<C-Space>', buffalo.toggle_buf_menu, opts)
+map({ 't', 'n' }, '<M-Space>', buffalo.toggle_tab_menu, opts)
+-- Next/Prev
+map('n', '<C-j>', buffalo.nav_buf_next, opts)
+map('n', '<C-k>', buffalo.nav_buf_prev, opts)
+map('n', '<C-n>', buffalo.nav_tab_next, opts)
+map('n', '<C-p>', buffalo.nav_tab_prev, opts)
 ```
 
 ---
