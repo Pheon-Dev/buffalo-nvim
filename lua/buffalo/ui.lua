@@ -353,9 +353,7 @@ function M.toggle_tab_menu()
   update_tabs()
 
   local current_tab_line = 1
-  local line = 1
   local modified_lines = {}
-  local current_short_fns = {}
 
   for idx = 1, #tabs do
     local current_tab = api.get_tab_number(idx)
@@ -366,7 +364,7 @@ function M.toggle_tab_menu()
     if current_tab == 0 then
       return
     end
-    contents[idx] = string.format(" tab %s: [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
+    contents[idx] = string.format("󰓩 %s: [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
   end
 
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
@@ -396,7 +394,7 @@ function M.toggle_tab_menu()
       Buffalo_tabh,
       "n",
       value.key,
-      "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
+      "<Cmd>lua require('buffalo.ui').select_tab_menu_item('" .. value.command .. "')<CR>",
       {}
     )
   end
@@ -427,7 +425,7 @@ function M.toggle_tab_menu()
       c,
       string.format(
         "<Cmd>%s <bar> lua require('buffalo.ui')" ..
-        ".select_menu_item()<CR>",
+        ".select_tab_menu_item()<CR>",
         i
       ),
       {}
@@ -443,6 +441,13 @@ function M.toggle_tab_menu()
       -1
     )
   end
+end
+
+function M.select_tab_menu_item(command)
+  local idx = vim.fn.line(".")
+  close_menu(true)
+  update_buffers()
+  M.nav_tab(idx, command)
 end
 
 function M.select_menu_item(command)
@@ -496,6 +501,20 @@ end
 function M.on_menu_save()
   log.trace("on_menu_save()")
   set_mark_list(get_menu_items())
+end
+
+function M.nav_tab(id, command)
+  log.trace("nav_file(): Navigating to", id)
+  update_tabs()
+
+  if command == nil or command == "tabnext" then
+    local tabid = api.get_tab_number(id)
+    if tabid ~= -1 then
+      vim.cmd(tabid .. "tabnext")
+    end
+  else
+    vim.cmd(id .. command)
+  end
 end
 
 function M.nav_file(id, command)
