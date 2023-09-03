@@ -5,6 +5,7 @@ local utils             = require("buffalo.utils")
 local log               = require("buffalo.dev").log
 local marks             = require("buffalo").marks
 local tab_marks         = require("buffalo").tab_marks
+local api               = require("buffalo.api")
 
 local M                 = {}
 
@@ -71,6 +72,16 @@ local function can_be_deleted(bufname, bufnr)
   )
 end
 
+local function can_tab_be_deleted(tabname, tabid)
+  return (
+    vim.api.nvim_tabpage_is_valid(tabid)
+    and (not string_starts(tabname, "term://"))
+    -- and (not vim.bo[tabid].modified)
+    and tabid ~= -1
+  )
+end
+
+
 
 local function is_buffer_in_marks(bufnr)
   for _, mark in pairs(marks) do
@@ -81,9 +92,9 @@ local function is_buffer_in_marks(bufnr)
   return false
 end
 
-local function is_tab_in_tab_marks(bufnr)
+local function is_tab_in_tab_marks(tabid)
   for _, mark in pairs(tab_marks) do
-    if mark.buf_id == bufnr then
+    if mark.tab_id == tabid then
       return true
     end
   end
@@ -141,21 +152,20 @@ end
 local function update_tabs()
   -- Check deletions
   for _, mark in pairs(initial_tab_marks) do
-    if not is_tab_in_tab_marks(mark.buf_id) then
-      if can_be_deleted(mark.filename, mark.buf_id) then
-        vim.api.nvim_buf_clear_namespace(mark.buf_id, -1, 1, -1)
-        vim.api.nvim_buf_delete(mark.buf_id, {})
+    if not is_tab_in_tab_marks(mark.tab_id) then
+      if can_tab_be_deleted(mark.tab_name, mark.tab_id) then
+        vim.api.nvim_tabpage_del_var(mark.tab_id, {})
       end
     end
   end
 
   -- Check additions
   for idx, mark in pairs(marks) do
-    local bufnr = mark.filename
+    local bufnr = mark.tab_name
     -- Add buffer only if it does not already exist
     if bufnr == -1 then
-      vim.cmd("badd " .. mark.filename)
-      marks[idx].buf_id = vim.fn.bufnr(mark.filename)
+      vim.cmd("badd " .. mark.tab_name)
+      marks[idx].tab_id = vim.fn.bufnr(mark.tab_name)
     end
   end
 end
@@ -217,7 +227,6 @@ function M.toggle_buf_menu()
 
   update_marks()
 
-  -- set initial_marks
   local current_buf_line = 1
   local line = 1
   local modified_lines = {}
@@ -329,9 +338,10 @@ function M.toggle_tab_menu()
     close_menu(true)
     return
   end
-  local current_tab_id = vim.api.nvim_tabpage_get_number(vim.api.nvim_get_current_tabpage())
-  local tabs = vim.api.nvim_list_tabpages()
-  local o = {}
+  local tabid = api.get_current_tab()
+  local current_tab_id = api.get_tab_number(tabid)
+  local tabs = api.get_tabs()
+  local wins = api.get_wins()
 
   local win_info = create_window("tabpages")
   local contents = {}
@@ -340,50 +350,22 @@ function M.toggle_tab_menu()
   Buffalo_win_id = win_info.win_id
   Buffalo_tabh = win_info.bufnr
 
-  -- update_tabs()
-  --
-  -- -- set initial_tabs
+  update_tabs()
+
   local current_tab_line = 1
   local line = 1
   local modified_lines = {}
   local current_short_fns = {}
 
-  for idx, tab in pairs(tabs) do
-    local current_tab = tabs[idx]
-    local count = 0
-    local wins = vim.api.nvim_tabpage_list_wins(current_tab)
-    for _, win in pairs(wins) do
-      print(win)
-      count = count + 1
+  for idx = 1, #tabs do
+    local current_tab = api.get_tab_number(idx)
+    local twins = api.get_tab_wins(idx)
+    if current_tab == 0 then
+      return
     end
-    contents[line] = string.format("%s window%s [%s]", current_tab, count > 1 and "s" or "", count)
-    line = line + 1
+    contents[idx] = string.format(" tab %s: [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
   end
 
-  -- for idx, mark in pairs(tab_marks) do
-  --   -- Add buffer only if it does not already exist
-  --   -- if vim.fn.buflisted(mark.tab_id) ~= 1 then
-  --   --   tab_marks[idx] = nil
-  --   -- else
-  --   local current_mark = tab_marks[idx]
-  --   initial_tab_marks[idx] = {
-  --     tab_name = current_mark.tab_name,
-  --     tab_id = current_mark.tab_id,
-  --     tab_wins = current_mark.tab_wins,
-  --   }
-  --   -- if vim.bo[current_mark.tab_id].modified then
-  --   --   table.insert(modified_lines, line)
-  --   -- end
-  --   -- if current_mark.tab_id == current_tab_id then
-  --   --   current_tab_line = line
-  --   -- end
-  --   local display_filename = current_mark.tab_name
-  --   -- display_filename = utils.normalize_path(display_filename)
-  --   contents[line] = string.format("%s", display_filename)
-  --   line = line + 1
-  --   -- end
-  -- end
-  --
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
 
   vim.api.nvim_buf_set_name(Buffalo_tabh, "buffalo-tabs")
