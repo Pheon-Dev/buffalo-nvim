@@ -278,7 +278,7 @@ function M.toggle_buf_menu()
     "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
     { silent = true }
   )
-  for _, value in pairs(config.select_menu_item_commands) do
+  for _, value in pairs(config.buffer_commands) do
     vim.api.nvim_buf_set_keymap(
       Buffalo_bufh,
       "n",
@@ -389,7 +389,7 @@ function M.toggle_tab_menu()
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
     { silent = true }
   )
-  for _, value in pairs(config.select_menu_item_commands) do
+  for _, value in pairs(config.tab_commands) do
     vim.api.nvim_buf_set_keymap(
       Buffalo_tabh,
       "n",
@@ -549,8 +549,20 @@ local function get_current_buf_line()
   return -1
 end
 
-function M.nav_next()
-  log.trace("nav_next()")
+function M.nav_tab_next()
+  log.trace("nav_tab_next()")
+  update_tabs()
+  vim.cmd("tabnext")
+end
+
+function M.nav_tab_prev()
+  log.trace("nav_tab_prev()")
+  update_tabs()
+  vim.cmd("tabprev")
+end
+
+function M.nav_buf_next()
+  log.trace("nav_buf_next()")
   update_marks()
   local current_buf_line = get_current_buf_line()
   if current_buf_line == -1 then
@@ -566,8 +578,8 @@ function M.nav_next()
   end
 end
 
-function M.nav_prev()
-  log.trace("nav_prev()")
+function M.nav_buf_prev()
+  log.trace("nav_buf_prev()")
   update_marks()
   local current_buf_line = get_current_buf_line()
   if current_buf_line == -1 then
