@@ -25,8 +25,8 @@ local function close_menu(force_save)
   Buffalo_bufh = nil
 end
 
-local function create_buf_window()
-  log.trace("_create_buf_window()")
+local function create_window(title)
+  log.trace("_create_window()")
 
   local width = config.width or 60
   local height = config.height or 10
@@ -36,7 +36,7 @@ local function create_buf_window()
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local Buffalo_win_id, win = popup.create(bufnr, {
-    title = "Buffalo [buffers]",
+    title = "Buffalo [" .. title .. "]",
     highlight = "BuffaloWindow",
     line = math.floor(((vim.o.lines - height) / 2) - 1),
     col = math.floor((vim.o.columns - width) / 2),
@@ -57,37 +57,6 @@ local function create_buf_window()
   }
 end
 
-local function create_tab_window()
-  log.trace("_create_tab_window()")
-
-  local width = config.width or 60
-  local height = config.height or 10
-
-  local borderchars = config.borderchars
-      or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
-  local bufnr = vim.api.nvim_create_buf(false, false)
-
-  local Buffalo_win_id, win = popup.create(bufnr, {
-    title = "Buffalo [tabpages]",
-    highlight = "BuffaloWindow",
-    line = math.floor(((vim.o.lines - height) / 2) - 1),
-    col = math.floor((vim.o.columns - width) / 2),
-    minwidth = width,
-    minheight = height,
-    borderchars = borderchars,
-  })
-
-  vim.api.nvim_win_set_option(
-    win.border.win_id,
-    "winhl",
-    "Normal:BuffaloBorder"
-  )
-
-  return {
-    bufnr = bufnr,
-    win_id = Buffalo_win_id,
-  }
-end
 
 local function string_starts(string, start)
   return string.sub(string, 1, string.len(start)) == start
@@ -239,7 +208,7 @@ function M.toggle_quick_menu()
     current_buf_id = vim.fn.bufnr()
   end
 
-  local win_info = create_buf_window()
+  local win_info = create_window("buffers")
   local contents = {}
   initial_marks = {}
 
@@ -365,7 +334,7 @@ function M.toggle_tab_menu()
   local o = {}
 
   local wins = vim.api.nvim_tabpage_list_wins(current_tab_id)
-  local win_info = create_tab_window()
+  local win_info = create_window("tabpages")
   local contents = {}
   initial_tab_marks = {}
 
