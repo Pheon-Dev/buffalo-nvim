@@ -90,7 +90,13 @@ function M.setup(config)
 
   local default_config = {
     line_keys = "1234567890",
-    select_menu_item_commands = {
+    tab_commands = {
+      edit = {
+        key = "<CR>",
+        command = "tabnext"
+      }
+    },
+    buffer_commands = {
       edit = {
         key = "<CR>",
         command = "edit"
