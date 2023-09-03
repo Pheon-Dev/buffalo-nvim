@@ -191,8 +191,8 @@ local function update_marks()
   end
 end
 
-function M.toggle_quick_menu()
-  log.trace("toggle_quick_menu()")
+function M.toggle_buf_menu()
+  log.trace("toggle_buf_menu()")
   if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
     if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
       M.on_menu_save()
@@ -249,7 +249,7 @@ function M.toggle_quick_menu()
   for key, value in pairs(config.win_extra_options) do
     vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
   end
-  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo")
+  vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo-buffers")
   vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
   vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
   vim.api.nvim_buf_set_option(Buffalo_bufh, "buftype", "acwrite")
@@ -259,14 +259,14 @@ function M.toggle_quick_menu()
     Buffalo_bufh,
     "n",
     "q",
-    "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
+    "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
     { silent = true }
   )
   vim.api.nvim_buf_set_keymap(
     Buffalo_bufh,
     "n",
     "<ESC>",
-    "<Cmd>lua require('buffalo.ui').toggle_quick_menu()<CR>",
+    "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
     { silent = true }
   )
   for _, value in pairs(config.select_menu_item_commands) do
@@ -286,7 +286,7 @@ function M.toggle_quick_menu()
   )
   vim.cmd(
     "autocmd BufLeave <buffer> ++nested ++once silent" ..
-    " lua require('buffalo.ui').toggle_quick_menu()"
+    " lua require('buffalo.ui').toggle_buf_menu()"
   )
   vim.cmd(
     string.format(
