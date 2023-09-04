@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-This is a [harpoon](https://github.com/ThePrimeagen/harpoon) like plugin that provides a UI
+This is a <a src="https://github.com/ThePrimeagen/harpoon">harpoon</a> like plugin that provides a UI
 to open buffers or tabs (+windows). Their respective totals can be displayed on the statusline,
   tabline or winbar.
 </p>
@@ -48,6 +48,19 @@ require('buffalo').setup({})
 ## Usage
 
 ```lua
+-- Keymaps
+local opts = { noremap = true }
+local map = vim.keymap.set
+local buffalo = require("buffalo.ui")
+
+map({ 't', 'n' }, '<C-Space>', buffalo.toggle_buf_menu, opts)
+map({ 't', 'n' }, '<M-Space>', buffalo.toggle_tab_menu, opts)
+-- Next/Prev
+map('n', '<C-j>', buffalo.nav_buf_next, opts)
+map('n', '<C-k>', buffalo.nav_buf_prev, opts)
+map('n', '<C-n>', buffalo.nav_tab_next, opts)
+map('n', '<C-p>', buffalo.nav_tab_prev, opts)
+
 -- Example in lualine
 ...
 sections = {
@@ -102,24 +115,6 @@ require("buffalo").setup({
     }
   },
 })
-```
-
----
-
-## Mappings
-
-```lua
-local opts = { noremap = true }
-local map = vim.keymap.set
-local buffalo = require("buffalo.ui")
-
-map({ 't', 'n' }, '<C-Space>', buffalo.toggle_buf_menu, opts)
-map({ 't', 'n' }, '<M-Space>', buffalo.toggle_tab_menu, opts)
--- Next/Prev
-map('n', '<C-j>', buffalo.nav_buf_next, opts)
-map('n', '<C-k>', buffalo.nav_buf_prev, opts)
-map('n', '<C-n>', buffalo.nav_tab_next, opts)
-map('n', '<C-p>', buffalo.nav_tab_prev, opts)
 ```
 
 ---
