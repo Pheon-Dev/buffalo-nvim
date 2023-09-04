@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-This is a <a src="https://github.com/ThePrimeagen/harpoon">harpoon</a> like plugin that provides a UI
+This is a <span><a src="https://github.com/ThePrimeagen/harpoon">harpoon</a></span> like plugin that provides a UI
 to open buffers or tabs (+windows). Their respective totals can be displayed on the statusline,
   tabline or winbar.
 </p>
