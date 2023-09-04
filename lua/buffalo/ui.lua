@@ -15,10 +15,6 @@ local initial_marks     = {}
 local initial_tab_marks = {}
 local config            = buffalo.get_config()
 
-local opts              = { noremap = true }
-local map               = vim.keymap.set
--- We save before we close because we use the state of the buffer as the list
--- of items.
 local function close_menu(force_save)
   force_save = force_save or false
 
@@ -27,6 +23,9 @@ local function close_menu(force_save)
   Buffalo_win_id = nil
   Buffalo_bufh = nil
 end
+
+local opts = { noremap = true }
+local map  = vim.keymap.set
 
 local function create_window(title)
   log.trace("_create_window()")
@@ -315,15 +314,6 @@ function M.toggle_buf_menu()
     )
   end
 
-  for i = 1, #str do
-    local buffer = str:sub(i, i)
-    map(
-      'n',
-      string.format(config.goto_buffer, buffer),
-      function() buffalo.nav_buf(i) end,
-      opts
-    )
-  end
 
   for _, modified_line in pairs(modified_lines) do
     vim.api.nvim_buf_add_highlight(
@@ -444,15 +434,6 @@ function M.toggle_tab_menu()
     )
   end
 
-  for i = 1, #str do
-    local tab = str:sub(i, i)
-    map(
-      'n',
-      string.format(config.goto_tab, tab),
-      function() buffalo.nav_tab(i) end,
-      opts
-    )
-  end
   for _, modified_line in pairs(modified_lines) do
     vim.api.nvim_buf_add_highlight(
       Buffalo_tabh,
@@ -676,6 +657,28 @@ function M.load_menu_from_file(filename)
   file:close()
   set_mark_list(lines)
   update_buffers()
+end
+
+local keys = "1234567890"
+
+for i = 1, #keys do
+  local buffer = keys:sub(i, i)
+  map(
+    'n',
+    string.format(config.goto_buffer, buffer),
+    function() M.nav_buf(i) end,
+    opts
+  )
+end
+
+for i = 1, #keys do
+  local tab = keys:sub(i, i)
+  map(
+    'n',
+    string.format(config.goto_tab, tab),
+    function() M.nav_tab(i) end,
+    opts
+  )
 end
 
 return M
