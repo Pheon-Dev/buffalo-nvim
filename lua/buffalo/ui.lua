@@ -204,7 +204,7 @@ function M.toggle_buf_menu()
     return
   end
   local current_buf_id = -1
-  current_buf_id = vim.fn.bufnr("#")
+  current_buf_id = vim.fn.bufnr()
 
   local win_info = create_window("buffers")
   local contents = {}
