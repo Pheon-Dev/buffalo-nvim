@@ -659,14 +659,15 @@ function M.load_menu_from_file(filename)
   update_buffers()
 end
 
-if config.go_to.enabled then
+local go_to = config.go_to
+if go_to.enabled then
   local keys = "1234567890"
 
   for i = 1, #keys do
     local buffer = keys:sub(i, i)
     map(
       'n',
-      string.format(config.go_to.go_to_buffer, buffer),
+      string.format(go_to.go_to_buffer, buffer),
       function() M.nav_buf(i) end,
       opts
     )
@@ -676,15 +677,16 @@ if config.go_to.enabled then
     local tab = keys:sub(i, i)
     map(
       'n',
-      string.format(config.go_to.go_to_tab, tab),
+      string.format(go_to.go_to_tab, tab),
       function() M.nav_tab(i) end,
       opts
     )
   end
 end
 
-if config.filter.enabled then
-  map({ 't', 'n' }, config.filter_tabs, function()
+local filter = config.filter
+if filter.enabled then
+  map({ 't', 'n' }, filter.filter_tabs, function()
     buffalo.toggle_tab_menu()
 
     vim.defer_fn(function()
@@ -692,7 +694,7 @@ if config.filter.enabled then
     end, 50)
   end, opts)
 
-  map({ 't', 'n' }, config.filter_buffers, function()
+  map({ 't', 'n' }, filter.filter_buffers, function()
     buffalo.toggle_buf_menu()
 
     vim.defer_fn(function()
