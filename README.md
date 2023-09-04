@@ -15,6 +15,18 @@ to navigate through buffers or tabs.
 
 > Their respective totals can be displayed on the statusline, tabline or winbar.
 
+<p align="center">
+<img src="assets/buffers.jpg" alt="buffalo-buffers" />
+</p>
+
+<p align="center">
+<img src="assets/tabs.jpg" alt="buffalo-tabs" />
+</p>
+
+<p align="center">
+<img src="assets/statusline.jpg" alt="buffalo-statusline" />
+</p>
+
 ## Installation
 
 Using [Lazy](https://github.com/folke/lazy.nvim)
