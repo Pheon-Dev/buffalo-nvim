@@ -368,6 +368,13 @@ function M.toggle_tab_menu()
   vim.api.nvim_buf_set_option(Buffalo_tabh, "bufhidden", "delete")
   vim.cmd(string.format(":call cursor(%d, %d)", current_tab_line, 1))
   vim.api.nvim_buf_set_keymap(
+    Buffalo_bufh,
+    "n",
+    config.exit_menu,
+    "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
+    { silent = true }
+  )
+  vim.api.nvim_buf_set_keymap(
     Buffalo_tabh,
     "n",
     "q",
@@ -448,7 +455,7 @@ function M.select_menu_item(command)
     M.on_menu_save()
   end
   close_menu(true)
-  M.nav_file(idx, command)
+  M.nav_buf(idx, command)
   update_buffers()
 end
 
@@ -496,7 +503,7 @@ function M.on_menu_save()
 end
 
 function M.nav_tab(id, command)
-  log.trace("nav_file(): Navigating to", id)
+  log.trace("nav_buf(): Navigating to", id)
   update_tabs()
 
   if command == nil or command == "tabnext" then
@@ -509,8 +516,8 @@ function M.nav_tab(id, command)
   end
 end
 
-function M.nav_file(id, command)
-  log.trace("nav_file(): Navigating to", id)
+function M.nav_buf(id, command)
+  log.trace("nav_buf(): Navigating to", id)
   update_marks()
 
   local mark = marks[id]
@@ -563,10 +570,10 @@ function M.nav_buf_next()
   local next_buf_line = current_buf_line + 1
   if next_buf_line > #marks then
     if config.cycle then
-      M.nav_file(1)
+      M.nav_buf(1)
     end
   else
-    M.nav_file(next_buf_line)
+    M.nav_buf(next_buf_line)
   end
 end
 
@@ -580,10 +587,10 @@ function M.nav_buf_prev()
   local prev_buf_line = current_buf_line - 1
   if prev_buf_line < 1 then
     if config.cycle then
-      M.nav_file(#marks)
+      M.nav_buf(#marks)
     end
   else
-    M.nav_file(prev_buf_line)
+    M.nav_buf(prev_buf_line)
   end
 end
 
