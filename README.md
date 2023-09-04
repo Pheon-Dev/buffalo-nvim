@@ -154,10 +154,10 @@ require("buffalo").setup({
 
 ---
 
-## Inspiration
+## Acknowledgement
 
-ThePrimeagen's [Harpoon](https://github.com/ThePrimeagen/harpoon)
-J-Morano's [Buffer Manager](https://github.com/j-morano/buffer_manager.nvim)
+- ThePrimeagen's [Harpoon](https://github.com/ThePrimeagen/harpoon)
+- J-Morano's [Buffer Manager](https://github.com/j-morano/buffer_manager.nvim)
 
 ---
 
