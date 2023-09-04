@@ -163,6 +163,4 @@ require("buffalo").setup({
 
 ## Contributions
 
-> no pigeons where harmed or killed in the making of this plugin
-
 - PRs and Issues are always welcome.
