@@ -154,6 +154,13 @@ require("buffalo").setup({
 
 ---
 
+## Inspiration
+
+ThePrimeagen's [Harpoon](https://github.com/ThePrimeagen/harpoon)
+J-Morano's [Buffer Manager](https://github.com/j-morano/buffer_manager.nvim)
+
+---
+
 ## Contributions
 
 > no pigeons where harmed or killed in the making of this plugin
