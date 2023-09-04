@@ -11,10 +11,9 @@
 </p>
 
 This is a [harpoon](https://github.com/ThePrimeagen/harpoon) like plugin that provides an interface
-to navigate through buffers or tabs (+windows).
+to navigate through buffers or tabs.
 
-> Their respective totals can be displayed on the statusline,
-> tabline or winbar.
+> Their respective totals can be displayed on the statusline, tabline or winbar.
 
 ## Installation
 
@@ -87,15 +86,15 @@ sections = {
 ```lua
 require("buffalo").setup({
   tab_commands = {
-    edit = {
+    next = {
       key = "<CR>",
       command = "tabnext"
     },
-    v = {
+    close = {
       key = "<C-x>",
       command = "tabclose"
     },
-    h = {
+    new = {
       key = "<C-n>",
       command = "tabnew"
     }
@@ -105,16 +104,23 @@ require("buffalo").setup({
       key = "<CR>",
       command = "edit"
     },
-    v = {
+    vsplit = {
       key = "<C-v>",
       command = "vsplit"
     },
-    h = {
+    split = {
       key = "<C-h>",
       command = "split"
     }
   },
+  cycle = false, -- cycle through the list
 })
 ```
 
 ---
+
+## Contributions
+
+> no pigeons where harmed or killed in the making of this plugin
+
+- PRs and Issues are always welcome.

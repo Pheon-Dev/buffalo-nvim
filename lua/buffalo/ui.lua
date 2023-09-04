@@ -32,8 +32,7 @@ local function create_window(title)
   local width = config.width or 60
   local height = config.height or 10
 
-  local borderchars = config.borderchars
-      or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+  local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local Buffalo_win_id, win = popup.create(bufnr, {
@@ -109,16 +108,9 @@ local function get_mark_by_name(name, specific_marks)
   for _, mark in pairs(specific_marks) do
     ref_name = mark.filename
     if string_starts(mark.filename, "term://") then
-      if config.short_term_names then
-        ref_name = utils.get_short_term_name(mark.filename)
-      end
+      ref_name = utils.get_short_term_name(mark.filename)
     else
-      if config.short_file_names then
-        ref_name = utils.get_short_file_name(mark.filename, current_short_fns)
-        current_short_fns[ref_name] = true
-      else
-        ref_name = utils.normalize_path(mark.filename)
-      end
+      ref_name = utils.normalize_path(mark.filename)
     end
     if name == ref_name then
       return mark
@@ -212,11 +204,7 @@ function M.toggle_buf_menu()
     return
   end
   local current_buf_id = -1
-  if config.focus_alternate_buffer then
-    current_buf_id = vim.fn.bufnr("#")
-  else
-    current_buf_id = vim.fn.bufnr()
-  end
+  current_buf_id = vim.fn.bufnr("#")
 
   local win_info = create_window("buffers")
   local contents = {}
@@ -255,9 +243,6 @@ function M.toggle_buf_menu()
   end
 
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
-  for key, value in pairs(config.win_extra_options) do
-    vim.api.nvim_set_option_value(key, value, { win = Buffalo_win_id })
-  end
   vim.api.nvim_buf_set_name(Buffalo_bufh, "buffalo-buffers")
   vim.api.nvim_buf_set_lines(Buffalo_bufh, 0, #contents, false, contents)
   vim.api.nvim_buf_set_option(Buffalo_bufh, "filetype", "buffalo")
@@ -305,7 +290,7 @@ function M.toggle_buf_menu()
     )
   )
   -- Go to file hitting its line number
-  local str = config.line_keys
+  local str = "1234567890"
   for i = 1, #str do
     local c = str:sub(i, i)
     vim.api.nvim_buf_set_keymap(
@@ -416,7 +401,7 @@ function M.toggle_tab_menu()
     )
   )
   -- Go to file hitting its line number
-  local str = config.line_keys
+  local str = "1234567890"
   for i = 1, #str do
     local c = str:sub(i, i)
     vim.api.nvim_buf_set_keymap(
@@ -570,7 +555,7 @@ function M.nav_buf_next()
   end
   local next_buf_line = current_buf_line + 1
   if next_buf_line > #marks then
-    if config.loop_nav then
+    if config.cycle then
       M.nav_file(1)
     end
   else
@@ -587,7 +572,7 @@ function M.nav_buf_prev()
   end
   local prev_buf_line = current_buf_line - 1
   if prev_buf_line < 1 then
-    if config.loop_nav then
+    if config.cycle then
       M.nav_file(#marks)
     end
   else
