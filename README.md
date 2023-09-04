@@ -52,11 +52,15 @@ local opts = { noremap = true }
 local map = vim.keymap.set
 local buffalo = require("buffalo.ui")
 
+-- buffers
 map({ 't', 'n' }, '<C-Space>', buffalo.toggle_buf_menu, opts)
-map({ 't', 'n' }, '<M-Space>', buffalo.toggle_tab_menu, opts)
--- Next/Prev
+
 map('n', '<C-j>', buffalo.nav_buf_next, opts)
 map('n', '<C-k>', buffalo.nav_buf_prev, opts)
+
+-- tabpages
+map({ 't', 'n' }, '<M-Space>', buffalo.toggle_tab_menu, opts)
+
 map('n', '<C-n>', buffalo.nav_tab_next, opts)
 map('n', '<C-p>', buffalo.nav_tab_prev, opts)
 
@@ -115,8 +119,16 @@ require("buffalo").setup({
   },
   cycle = false, -- cycle through the list
   exit_menu = "x", -- similar to 'q' and '<esc>'
-  goto_tab = "<leader>%s",
-  goto_buffer = "<M-%s>",
+  go_to = {
+    enabled = true,
+    go_to_tab = "<leader>%s",
+    go_to_buffer = "<M-%s>",
+  },
+  filter = {
+    enabled = true,
+    filter_tabs = "<M-t>",
+    filter_buffers = "<M-b>",
+  },
 })
 ```
 

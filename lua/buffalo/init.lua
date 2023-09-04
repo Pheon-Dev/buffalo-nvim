@@ -103,8 +103,16 @@ function M.setup(config)
     },
     cycle = true,
     exit_menu = "q",
-    goto_tab = "<leader>%s",
-    goto_buffer = "<M-%s>",
+    go_to = {
+      enabled = true,
+      go_to_tab = "<leader>%s",
+      go_to_buffer = "<M-%s>",
+    },
+    filter = {
+      enabled = true,
+      filter_tabs = "<M-t>",
+      filter_buffers = "<M-b>",
+    },
   }
 
   local complete_config = merge_tables(default_config, config)
