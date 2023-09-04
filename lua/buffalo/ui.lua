@@ -368,7 +368,7 @@ function M.toggle_tab_menu()
   vim.api.nvim_buf_set_option(Buffalo_tabh, "bufhidden", "delete")
   vim.cmd(string.format(":call cursor(%d, %d)", current_tab_line, 1))
   vim.api.nvim_buf_set_keymap(
-    Buffalo_bufh,
+    Buffalo_tabh,
     "n",
     config.exit_menu,
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",

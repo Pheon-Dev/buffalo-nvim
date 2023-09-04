@@ -18,6 +18,8 @@ function api.get_tab_current_win(tabid)
 end
 
 function api.get_tab_number(tabid)
+  local valid = vim.api.nvim_tabpage_is_valid(tabid)
+  if not valid then return -1 end
   return vim.api.nvim_tabpage_get_number(tabid)
 end
 
