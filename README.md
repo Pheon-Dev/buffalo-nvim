@@ -10,11 +10,11 @@
 <img src="https://i.pinimg.com/136x136/56/d2/8c/56d28c3798343d509e9b51973ee6ce56.jpg" alt="buffalo-nvim" />
 </p>
 
-<p align="center">
-This is a <span><a src="https://github.com/ThePrimeagen/harpoon">harpoon</a></span> like plugin that provides a UI
-to open buffers or tabs (+windows). Their respective totals can be displayed on the statusline,
-  tabline or winbar.
-</p>
+This is a [harpoon](https://github.com/ThePrimeagen/harpoon) like plugin that provides an interface
+to navigate through buffers or tabs (+windows).
+
+> Their respective totals can be displayed on the statusline,
+> tabline or winbar.
 
 ## Installation
 
