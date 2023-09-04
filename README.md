@@ -32,7 +32,7 @@ to navigate through buffers or tabs.
 <img src="assets/statusline.jpg" alt="buffalo-statusline" />
 </p>
 <p align="right">
-  <i>4 tabs and 7 buffers<pre>  </pre></i>
+  <i>tabs: <strong>4 </strong> | buffers: <strong>7  </strong>[lualine]</i>
 </p>
 
 ## Installation
