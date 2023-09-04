@@ -687,7 +687,7 @@ end
 local filter = config.filter
 if filter.enabled then
   map({ 't', 'n' }, filter.filter_tabs, function()
-    buffalo.toggle_tab_menu()
+    M.toggle_tab_menu()
 
     vim.defer_fn(function()
       vim.fn.feedkeys('/')
@@ -695,7 +695,7 @@ if filter.enabled then
   end, opts)
 
   map({ 't', 'n' }, filter.filter_buffers, function()
-    buffalo.toggle_buf_menu()
+    M.toggle_buf_menu()
 
     vim.defer_fn(function()
       vim.fn.feedkeys('/')
