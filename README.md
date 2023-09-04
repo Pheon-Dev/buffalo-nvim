@@ -91,11 +91,11 @@ require("buffalo").setup({
       command = "tabnext"
     },
     close = {
-      key = "<C-x>",
+      key = "c",
       command = "tabclose"
     },
     new = {
-      key = "<C-n>",
+      key = "n",
       command = "tabnew"
     }
   },
@@ -105,15 +105,16 @@ require("buffalo").setup({
       command = "edit"
     },
     vsplit = {
-      key = "<C-v>",
+      key = "v",
       command = "vsplit"
     },
     split = {
-      key = "<C-h>",
+      key = "h",
       command = "split"
     }
   },
   cycle = false, -- cycle through the list
+  exit_menu = "x", -- similar to 'q' and '<esc>'
 })
 ```
 
