@@ -23,6 +23,11 @@ to navigate through buffers or tabs.
 <img src="assets/tabs.jpg" alt="buffalo-tabs" />
 </p>
 
+<hr />
+<h3 align="center">
+ statusline
+</h3>
+
 <p align="center">
 <img src="assets/statusline.jpg" alt="buffalo-statusline" />
 </p>
