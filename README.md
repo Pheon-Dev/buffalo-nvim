@@ -29,6 +29,7 @@ to navigate through buffers or tabs.
 </h3>
 
 <p align="center">
+  <i>4 tabs and 7 buffers</i>
 <img src="assets/statusline.jpg" alt="buffalo-statusline" />
 </p>
 
