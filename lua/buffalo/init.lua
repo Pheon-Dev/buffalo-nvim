@@ -103,6 +103,8 @@ function M.setup(config)
     },
     cycle = true,
     exit_menu = "q",
+    goto_tab = "<leader>%s",
+    goto_buffer = "<M-%s>",
   }
 
   local complete_config = merge_tables(default_config, config)

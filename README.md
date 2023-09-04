@@ -115,6 +115,8 @@ require("buffalo").setup({
   },
   cycle = false, -- cycle through the list
   exit_menu = "x", -- similar to 'q' and '<esc>'
+  goto_tab = "<leader>%s",
+  goto_buffer = "<M-%s>",
 })
 ```
 
