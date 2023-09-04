@@ -102,6 +102,7 @@ function M.setup(config)
       }
     },
     cycle = true,
+    exit_menu = "q",
   }
 
   local complete_config = merge_tables(default_config, config)

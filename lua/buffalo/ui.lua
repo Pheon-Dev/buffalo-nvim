@@ -259,6 +259,13 @@ function M.toggle_buf_menu()
   vim.api.nvim_buf_set_keymap(
     Buffalo_bufh,
     "n",
+    config.exit_menu,
+    "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
+    { silent = true }
+  )
+  vim.api.nvim_buf_set_keymap(
+    Buffalo_bufh,
+    "n",
     "<ESC>",
     "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
     { silent = true }
