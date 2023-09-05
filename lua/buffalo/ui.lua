@@ -22,6 +22,7 @@ local function close_menu(force_save)
 
   Buffalo_win_id = nil
   Buffalo_bufh = nil
+  Buffalo_tabh = nil
 end
 
 local opts = { noremap = true }

@@ -166,7 +166,7 @@ require("buffalo").setup({
 ## Tips
 
 - Hit any number on the menu to navigate to that buffer or tab without having to scroll.
-- Use normal keymap defaults for neovim e.g `dd` to delete a buffer.
+- Use normal keymap defaults for neovim e.g `dd` to delete a buffer, on the open menu.
 
 ---
 
