@@ -174,6 +174,7 @@ require("buffalo").setup({
 
 - `BuffaloBorder`
 - `BuffaloWindow`
+- `BuffaloModified`
 
 ---
 

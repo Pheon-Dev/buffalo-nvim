@@ -403,17 +403,17 @@ function M.toggle_tab_menu()
   end
   vim.cmd(
     string.format(
-      "autocmd BufModifiedSet <buffer=%s> set nomodified",
+      "autocmd BufModifiedSet <tabpage=%s> set nomodified",
       Buffalo_tabh
     )
   )
   vim.cmd(
-    "autocmd BufLeave <buffer> ++nested ++once silent" ..
+    "autocmd BufLeave <tabpage> ++nested ++once silent" ..
     " lua require('buffalo.ui').toggle_tab_menu()"
   )
   vim.cmd(
     string.format(
-      "autocmd BufWriteCmd <buffer=%s>" ..
+      "autocmd BufWriteCmd <tabpage=%s>" ..
       " lua require('buffalo.ui').on_menu_save()",
       Buffalo_tabh
     )
