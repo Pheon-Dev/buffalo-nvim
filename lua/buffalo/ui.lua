@@ -33,7 +33,7 @@ local function create_window(title)
   local width = config.width or 60
   local height = config.height or 10
 
-  local borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+  local borderchars = config.borderchars or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local Buffalo_win_id, win = popup.create(bufnr, {

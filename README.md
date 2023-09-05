@@ -139,6 +139,7 @@ require("buffalo").setup({
   },
   cycle = false, -- cycle through the list
   exit_menu = "x", -- similar to 'q' and '<esc>'
+  borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
   go_to = {
     enabled = true,
     go_to_tab = "<leader>%s",

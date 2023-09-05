@@ -103,6 +103,7 @@ function M.setup(config)
     },
     cycle = true,
     exit_menu = "q",
+    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     go_to = {
       enabled = true,
       go_to_tab = "<leader>%s",
