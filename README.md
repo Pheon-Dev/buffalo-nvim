@@ -155,6 +155,13 @@ require("buffalo").setup({
 
 ---
 
+## Highlights
+
+- `BuffaloBorder`
+- `BuffaloWindow`
+
+---
+
 ## Acknowledgement
 
 - ThePrimeagen's [Harpoon](https://github.com/ThePrimeagen/harpoon)
