@@ -109,8 +109,8 @@ sections = {
 
 ```lua
 require("buffalo").setup({
-  tab_commands = {
-    next = {
+  tab_commands = {  -- use default neovim commands for tabs e.g `tablast`, `tabnew` etc
+    next = { -- you can use any unique name e.g `tabnext`, `tab_next`, `next`, `random` etc
       key = "<CR>",
       command = "tabnext"
     },
@@ -118,12 +118,16 @@ require("buffalo").setup({
       key = "c",
       command = "tabclose"
     },
+    dd = {
+      key = "dd",
+      command = "tabclose"
+    },
     new = {
       key = "n",
       command = "tabnew"
     }
   },
-  buffer_commands = {
+  buffer_commands = { -- use default neovim commands for buffers e.g `bd`, `edit`
     edit = {
       key = "<CR>",
       command = "edit"
@@ -135,6 +139,10 @@ require("buffalo").setup({
     split = {
       key = "h",
       command = "split"
+    }
+    buffer_delete = {
+      key = "d",
+      command = "bd"
     }
   },
   cycle = false, -- cycle through the list
@@ -152,6 +160,13 @@ require("buffalo").setup({
   },
 })
 ```
+
+---
+
+## Tips
+
+- Hit any number on the menu to navigate to that buffer or tab without having to scroll.
+- Use normal keymap defaults for neovim e.g `dd` to delete a buffer.
 
 ---
 
