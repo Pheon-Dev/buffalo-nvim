@@ -199,7 +199,7 @@ function M.toggle_buf_menu()
   log.trace("toggle_buf_menu()")
   if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
     if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
-      M.on_menu_save()
+      M.on_buf_menu_save()
     end
     close_menu(true)
     update_buffers()
@@ -294,7 +294,7 @@ function M.toggle_buf_menu()
   vim.cmd(
     string.format(
       "autocmd BufWriteCmd <buffer=%s>" ..
-      " lua require('buffalo.ui').on_menu_save()",
+      " lua require('buffalo.ui').on_buf_menu_save()",
       Buffalo_bufh
     )
   )
@@ -332,7 +332,7 @@ function M.toggle_tab_menu()
   log.trace("toggle_tab_menu()")
   if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
     if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
-      M.on_menu_save()
+      M.on_tab_menu_save()
     end
     close_menu(true)
     update_tabs()
@@ -418,7 +418,7 @@ function M.toggle_tab_menu()
   vim.cmd(
     string.format(
       "autocmd BufWriteCmd <tabpage=%s>" ..
-      " lua require('buffalo.ui').on_menu_save()",
+      " lua require('buffalo.ui').on_tab_menu_save()",
       Buffalo_tabh
     )
   )
@@ -453,6 +453,9 @@ end
 
 function M.select_tab_menu_item(command)
   local idx = vim.fn.line(".")
+  if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
+    M.on_tab_menu_save()
+  end
   close_menu(true)
   update_buffers()
   M.nav_tab(idx, command)
@@ -461,7 +464,7 @@ end
 function M.select_menu_item(command)
   local idx = vim.fn.line(".")
   if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
-    M.on_menu_save()
+    M.on_buf_menu_save()
   end
   close_menu(true)
   M.nav_buf(idx, command)
@@ -481,7 +484,42 @@ local function get_menu_items()
 
   return indices
 end
+local function get_tab_menu_items()
+  log.trace("_get_tab_menu_items()")
+  local lines = vim.api.nvim_buf_get_lines(Buffalo_tabh, 0, -1, true)
+  local indices = {}
 
+  for _, line in pairs(lines) do
+    if not utils.is_white_space(line) then
+      table.insert(indices, line)
+    end
+  end
+
+  return indices
+end
+local function set_tab_mark_list(new_list)
+  log.trace("set_tab_mark_list(): New list:", new_list)
+
+  local original_marks = utils.deep_copy(tab_marks)
+  tab_marks = {}
+  for _, v in pairs(new_list) do
+    if type(v) == "string" then
+      local tab_name = v
+      local tab_id = nil
+      local current_mark = get_mark_by_name(tab_name, original_marks)
+      if current_mark then
+        tab_name = current_mark.tab_name
+        tab_id = current_mark.tab_id
+      else
+        tab_id = vim.fn.bufnr(v)
+      end
+      table.insert(tab_marks, {
+        filename = tab_name,
+        tab_id = tab_id,
+      })
+    end
+  end
+end
 local function set_mark_list(new_list)
   log.trace("set_mark_list(): New list:", new_list)
 
@@ -506,9 +544,14 @@ local function set_mark_list(new_list)
   end
 end
 
-function M.on_menu_save()
-  log.trace("on_menu_save()")
+function M.on_buf_menu_save()
+  log.trace("on_buf_menu_save()")
   set_mark_list(get_menu_items())
+end
+
+function M.on_tab_menu_save()
+  log.trace("on_tab_menu_save()")
+  set_tab_mark_list(get_tab_menu_items())
 end
 
 function M.nav_tab(id, command)
