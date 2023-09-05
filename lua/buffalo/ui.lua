@@ -331,7 +331,11 @@ end
 function M.toggle_tab_menu()
   log.trace("toggle_tab_menu()")
   if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
+    if vim.api.nvim_buf_get_changedtick(vim.fn.bufnr()) > 0 then
+      M.on_menu_save()
+    end
     close_menu(true)
+    update_tabs()
     return
   end
   local tabid = api.get_current_tab()
