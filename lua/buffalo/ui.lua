@@ -173,6 +173,27 @@ local function remove_mark(idx)
   end
 end
 
+local function update_tab_marks()
+  -- Check if any buffer has been deleted
+  -- If so, remove it from marks
+  for idx, mark in pairs(tab_marks) do
+    if not utils.tab_is_valid(mark.tab_id, mark.tab_name) then
+      remove_mark(idx)
+    end
+  end
+  -- Check if any buffer has been added
+  -- If so, add it to marks
+  for _, tab in pairs(vim.api.nvim_list_tabpages()) do
+    local tabname = api.get_tab_number(tab)
+    if utils.tab_is_valid(tab, tabname) and not is_tab_in_tab_marks(tab) then
+      table.insert(tab_marks, {
+        tab_name = tabname,
+        tab_id = tab,
+      })
+    end
+  end
+end
+
 local function update_marks()
   -- Check if any buffer has been deleted
   -- If so, remove it from marks
@@ -330,6 +351,7 @@ end
 function M.toggle_tab_menu()
   log.trace("toggle_tab_menu()")
   if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
+    update_tabs()
     close_menu(true)
     return
   end
@@ -345,7 +367,7 @@ function M.toggle_tab_menu()
   Buffalo_win_id = win_info.win_id
   Buffalo_tabh = win_info.bufnr
 
-  update_tabs()
+  update_tab_marks()
 
   local current_tab_line = 1
   local modified_lines = {}
@@ -508,7 +530,7 @@ end
 
 function M.nav_tab(id, command)
   log.trace("nav_buf(): Navigating to", id)
-  update_tabs()
+  update_tab_marks()
 
   if command == nil or command == "tabnext" then
     local tabid = api.get_tab_number(id)
@@ -554,13 +576,13 @@ end
 
 function M.nav_tab_next()
   log.trace("nav_tab_next()")
-  update_tabs()
+  update_tab_marks()
   vim.cmd("tabnext")
 end
 
 function M.nav_tab_prev()
   log.trace("nav_tab_prev()")
-  update_tabs()
+  update_tab_marks()
   vim.cmd("tabprev")
 end
 
