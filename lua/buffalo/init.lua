@@ -101,9 +101,10 @@ function M.setup(config)
         command = "edit"
       }
     },
-    cycle = true,
-    exit_menu = "q",
-    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+    general_commands = {
+      cycle = true,
+      exit_menu = "q",
+    },
     go_to = {
       enabled = true,
       go_to_tab = "<leader>%s",
@@ -114,6 +115,13 @@ function M.setup(config)
       filter_tabs = "<M-t>",
       filter_buffers = "<M-b>",
     },
+    ui = {
+      width = 60,
+      height = 10,
+      row = 2,
+      col = 2,
+      borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+    }
   }
 
   local complete_config = merge_tables(default_config, config)

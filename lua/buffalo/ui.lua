@@ -30,17 +30,19 @@ local map  = vim.keymap.set
 local function create_window(title)
   log.trace("_create_window()")
 
-  local width = config.width or 60
-  local height = config.height or 10
+  local width = config.ui.width or 60
+  local height = config.ui.height or 10
+  local row = config.ui.row or 2
+  local col = config.ui.col or 2
 
-  local borderchars = config.borderchars or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
+  local borderchars = config.ui.borderchars or { "─", "│", "─", "│", "╭", "╮", "╯", "╰" }
   local bufnr = vim.api.nvim_create_buf(false, false)
 
   local Buffalo_win_id, win = popup.create(bufnr, {
     title = "Buffalo [" .. title .. "]",
     highlight = "BuffaloWindow",
-    line = math.floor(((vim.o.lines - height) / 2) - 1),
-    col = math.floor((vim.o.columns - width) / 2),
+    line = math.floor(((vim.o.lines - height) / row) - 1),
+    col = math.floor((vim.o.columns - width) / col),
     minwidth = width,
     minheight = height,
     borderchars = borderchars,
@@ -260,7 +262,7 @@ function M.toggle_buf_menu()
   vim.api.nvim_buf_set_keymap(
     Buffalo_bufh,
     "n",
-    config.exit_menu,
+    config.general_commands.exit_menu,
     "<Cmd>lua require('buffalo.ui').toggle_buf_menu()<CR>",
     { silent = true }
   )
@@ -373,7 +375,7 @@ function M.toggle_tab_menu()
   vim.api.nvim_buf_set_keymap(
     Buffalo_tabh,
     "n",
-    config.exit_menu,
+    config.general_commands.exit_menu,
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
     { silent = true }
   )
@@ -573,7 +575,7 @@ function M.nav_buf_next()
   end
   local next_buf_line = current_buf_line + 1
   if next_buf_line > #marks then
-    if config.cycle then
+    if config.general_commands.cycle then
       M.nav_buf(1)
     end
   else
@@ -590,7 +592,7 @@ function M.nav_buf_prev()
   end
   local prev_buf_line = current_buf_line - 1
   if prev_buf_line < 1 then
-    if config.cycle then
+    if config.general_commands.cycle then
       M.nav_buf(#marks)
     end
   else

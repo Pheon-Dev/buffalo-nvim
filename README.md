@@ -145,9 +145,10 @@ require("buffalo").setup({
       command = "bd"
     }
   },
-  cycle = false, -- cycle through the list
-  exit_menu = "x", -- similar to 'q' and '<esc>'
-  borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+  general_commands = {
+    cycle = false, -- cycle through the list
+    exit_menu = "x", -- similar to 'q' and '<esc>'
+  },
   go_to = {
     enabled = true,
     go_to_tab = "<leader>%s",
@@ -158,6 +159,13 @@ require("buffalo").setup({
     filter_tabs = "<M-t>",
     filter_buffers = "<M-b>",
   },
+  ui = {
+    width = 60,
+    height = 10,
+    row = 2,
+    col = 2,
+    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+  }
 })
 ```
 
