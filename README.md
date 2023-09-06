@@ -15,18 +15,32 @@ to navigate through buffers or tabs.
 
 > Their respective totals can be displayed on the statusline, tabline or winbar.
 
+<hr />
+<h3 align="center">
+ NOTE:
+</h3>
+<h6>Please note this plugin is still in its early development stages. Breaking changes are to be expected!</h6>
+
+<hr />
+<h5 align="center">
+ BUFFERS
+</h5>
 <p align="center">
 <img src="assets/buffers.jpg" alt="buffalo-buffers" />
 </p>
 
+<hr />
+<h5 align="center">
+ TABS
+</h5>
 <p align="center">
 <img src="assets/tabs.jpg" alt="buffalo-tabs" />
 </p>
 
 <hr />
-<h3 align="center">
- statusline
-</h3>
+<h5 align="center">
+ STATUSLINE
+</h5>
 
 <p align="center">
 <img src="assets/statusline.jpg" alt="buffalo-statusline" />
