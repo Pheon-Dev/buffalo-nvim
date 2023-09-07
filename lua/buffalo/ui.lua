@@ -109,7 +109,6 @@ local function get_mark_by_name(name, specific_marks)
 end
 
 local function update_buffers()
-  -- Check deletions
   for _, mark in pairs(initial_marks) do
     if not is_buffer_in_marks(mark.buf_id) then
       if can_be_deleted(mark.filename, mark.buf_id) then
@@ -119,10 +118,8 @@ local function update_buffers()
     end
   end
 
-  -- Check additions
   for idx, mark in pairs(marks) do
     local bufnr = vim.fn.bufnr(mark.filename)
-    -- Add buffer only if it does not already exist
     if bufnr == -1 then
       vim.cmd("badd " .. mark.filename)
       marks[idx].buf_id = vim.fn.bufnr(mark.filename)
@@ -140,15 +137,11 @@ local function remove_mark(idx)
 end
 
 local function update_marks()
-  -- Check if any buffer has been deleted
-  -- If so, remove it from marks
   for idx, mark in pairs(marks) do
     if not utils.buffer_is_valid(mark.buf_id, mark.filename) then
       remove_mark(idx)
     end
   end
-  -- Check if any buffer has been added
-  -- If so, add it to marks
   for _, buf in pairs(vim.api.nvim_list_bufs()) do
     local bufname = vim.api.nvim_buf_get_name(buf)
     if utils.buffer_is_valid(buf, bufname) and not is_buffer_in_marks(buf) then
@@ -186,7 +179,6 @@ function M.toggle_buf_menu()
   local line = 1
   local modified_lines = {}
   for idx, mark in pairs(marks) do
-    -- Add buffer only if it does not already exist
     if vim.fn.buflisted(mark.buf_id) ~= 1 then
       marks[idx] = nil
     else
@@ -495,7 +487,6 @@ function M.nav_buf(id, command)
   end
   if command == nil or command == "edit" then
     local bufnr = vim.fn.bufnr(mark.filename)
-    -- Check if buffer exists by filename
     if bufnr ~= -1 then
       vim.cmd("buffer " .. bufnr)
     else
