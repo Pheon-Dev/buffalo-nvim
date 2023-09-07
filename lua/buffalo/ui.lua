@@ -1,19 +1,20 @@
-local Path              = require("plenary.path")
-local buffalo           = require("buffalo")
-local popup             = require("plenary.popup")
-local utils             = require("buffalo.utils")
-local log               = require("buffalo.dev").log
-local marks             = require("buffalo").marks
-local tab_marks         = require("buffalo").tab_marks
-local api               = require("buffalo.api")
+local Path          = require("plenary.path")
+local buffalo       = require("buffalo")
+local popup         = require("plenary.popup")
+local utils         = require("buffalo.utils")
+local log           = require("buffalo.dev").log
+local marks         = require("buffalo").marks
+local api           = require("buffalo.api")
 
-local M                 = {}
+local M             = {}
 
-Buffalo_win_id          = nil
-Buffalo_bufh            = nil
-local initial_marks     = {}
-local initial_tab_marks = {}
-local config            = buffalo.get_config()
+Buffalo_win_id      = nil
+Buffalo_bufh        = nil
+Buffalo_Tabs_win_id = nil
+Buffalo_Tabs_bufh   = nil
+
+local initial_marks = {}
+local config        = buffalo.get_config()
 
 local function close_menu(force_save)
   force_save = force_save or false
@@ -24,6 +25,14 @@ local function close_menu(force_save)
   Buffalo_bufh = nil
 end
 
+local function close_tabs_menu(force_save)
+  force_save = force_save or false
+
+  vim.api.nvim_win_close(Buffalo_Tabs_win_id, true)
+
+  Buffalo_Tabs_win_id = nil
+  Buffalo_Tabs_bufh = nil
+end
 local opts = { noremap = true }
 local map  = vim.keymap.set
 
@@ -74,17 +83,6 @@ local function can_be_deleted(bufname, bufnr)
   )
 end
 
-local function can_tab_be_deleted(tabname, tabid)
-  return (
-    vim.api.nvim_tabpage_is_valid(tabid)
-    and (not string_starts(tabname, "term://"))
-    -- and (not vim.bo[tabid].modified)
-    and tabid ~= -1
-  )
-end
-
-
-
 local function is_buffer_in_marks(bufnr)
   for _, mark in pairs(marks) do
     if mark.buf_id == bufnr then
@@ -94,20 +92,8 @@ local function is_buffer_in_marks(bufnr)
   return false
 end
 
-local function is_tab_in_tab_marks(tabid)
-  for _, mark in pairs(tab_marks) do
-    if mark.tab_id == tabid then
-      return true
-    end
-  end
-  return false
-end
-
-
-
 local function get_mark_by_name(name, specific_marks)
   local ref_name = nil
-  local current_short_fns = {}
   for _, mark in pairs(specific_marks) do
     ref_name = mark.filename
     if string_starts(mark.filename, "term://") then
@@ -143,28 +129,6 @@ local function update_buffers()
     end
   end
 end
-
-local function update_tabs()
-  -- Check deletions
-  for _, mark in pairs(initial_tab_marks) do
-    if not is_tab_in_tab_marks(mark.tab_id) then
-      if can_tab_be_deleted(mark.tab_name, mark.tab_id) then
-        vim.api.nvim_tabpage_del_var(mark.tab_id, {})
-      end
-    end
-  end
-
-  -- Check additions
-  for idx, mark in pairs(marks) do
-    local bufnr = mark.tab_name
-    -- Add buffer only if it does not already exist
-    if bufnr == -1 then
-      vim.cmd("badd " .. mark.tab_name)
-      marks[idx].tab_id = vim.fn.bufnr(mark.tab_name)
-    end
-  end
-end
-
 
 local function remove_mark(idx)
   marks[idx] = nil
@@ -221,7 +185,6 @@ function M.toggle_buf_menu()
   local current_buf_line = 1
   local line = 1
   local modified_lines = {}
-  local current_short_fns = {}
   for idx, mark in pairs(marks) do
     -- Add buffer only if it does not already exist
     if vim.fn.buflisted(mark.buf_id) ~= 1 then
@@ -331,31 +294,29 @@ end
 
 function M.toggle_tab_menu()
   log.trace("toggle_tab_menu()")
-  if Buffalo_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_win_id) then
-    close_menu(true)
+  if Buffalo_Tabs_win_id ~= nil and vim.api.nvim_win_is_valid(Buffalo_Tabs_win_id) then
+    close_tabs_menu(true)
     return
   end
   local tabid = api.get_current_tab()
   local current_tab_id = api.get_tab_number(tabid)
   local tabs = api.get_tabs()
-  local wins = api.get_wins()
 
   local win_info = create_window("tabpages")
   local contents = {}
-  initial_tab_marks = {}
 
-  Buffalo_win_id = win_info.win_id
-  Buffalo_tabh = win_info.bufnr
+  Buffalo_Tabs_win_id = win_info.win_id
+  Buffalo_Tabs_bufh = win_info.bufnr
 
-  update_tabs()
 
-  local current_tab_line = 1
+  local current_buf_line = 1
   local modified_lines = {}
+
 
   for idx = 1, #tabs do
     local current_tab = api.get_tab_number(idx)
     if current_tab == current_tab_id then
-      current_tab_line = idx
+      current_buf_line = idx
     end
     local twins = api.get_tab_wins(idx)
     if current_tab == 0 then
@@ -364,30 +325,30 @@ function M.toggle_tab_menu()
     contents[idx] = string.format(" 󰓩 Tab %s [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
   end
 
-  vim.api.nvim_set_option_value("number", true, { win = Buffalo_win_id })
+  vim.api.nvim_set_option_value("number", true, { win = Buffalo_Tabs_win_id })
 
-  vim.api.nvim_buf_set_name(Buffalo_tabh, "buffalo-tabs")
-  vim.api.nvim_buf_set_lines(Buffalo_tabh, 0, #contents, false, contents)
-  vim.api.nvim_buf_set_option(Buffalo_tabh, "filetype", "buffalo")
-  vim.api.nvim_buf_set_option(Buffalo_tabh, "buftype", "acwrite")
-  vim.api.nvim_buf_set_option(Buffalo_tabh, "bufhidden", "delete")
-  vim.cmd(string.format(":call cursor(%d, %d)", current_tab_line, 1))
+  vim.api.nvim_buf_set_name(Buffalo_Tabs_bufh, "buffalo-tabs")
+  vim.api.nvim_buf_set_lines(Buffalo_Tabs_bufh, 0, #contents, false, contents)
+  vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "filetype", "buffalo")
+  vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "buftype", "acwrite")
+  vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "bufhidden", "delete")
+  vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
   vim.api.nvim_buf_set_keymap(
-    Buffalo_tabh,
+    Buffalo_Tabs_bufh,
     "n",
     config.general_commands.exit_menu,
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
     { silent = true }
   )
   vim.api.nvim_buf_set_keymap(
-    Buffalo_tabh,
+    Buffalo_Tabs_bufh,
     "n",
     "q",
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
     { silent = true }
   )
   vim.api.nvim_buf_set_keymap(
-    Buffalo_tabh,
+    Buffalo_Tabs_bufh,
     "n",
     "<ESC>",
     "<Cmd>lua require('buffalo.ui').toggle_tab_menu()<CR>",
@@ -395,7 +356,7 @@ function M.toggle_tab_menu()
   )
   for _, value in pairs(config.tab_commands) do
     vim.api.nvim_buf_set_keymap(
-      Buffalo_tabh,
+      Buffalo_Tabs_bufh,
       "n",
       value.key,
       "<Cmd>lua require('buffalo.ui').select_tab_menu_item('" .. value.command .. "')<CR>",
@@ -405,7 +366,7 @@ function M.toggle_tab_menu()
   vim.cmd(
     string.format(
       "autocmd BufModifiedSet <buffer=%s> set nomodified",
-      Buffalo_tabh
+      Buffalo_Tabs_bufh
     )
   )
   vim.cmd(
@@ -416,7 +377,7 @@ function M.toggle_tab_menu()
     string.format(
       "autocmd BufWriteCmd <buffer=%s>" ..
       " lua require('buffalo.ui').on_menu_save()",
-      Buffalo_tabh
+      Buffalo_Tabs_bufh
     )
   )
   local str = "1234567890"
@@ -424,7 +385,7 @@ function M.toggle_tab_menu()
   for i = 1, #str do
     local c = str:sub(i, i)
     vim.api.nvim_buf_set_keymap(
-      Buffalo_tabh,
+      Buffalo_Tabs_bufh,
       "n",
       c,
       string.format(
@@ -435,23 +396,11 @@ function M.toggle_tab_menu()
       {}
     )
   end
-
-  for _, modified_line in pairs(modified_lines) do
-    vim.api.nvim_buf_add_highlight(
-      Buffalo_tabh,
-      -1,
-      "BuffaloModified",
-      modified_line - 1,
-      0,
-      -1
-    )
-  end
 end
 
 function M.select_tab_menu_item(command)
   local idx = vim.fn.line(".")
-  close_menu(true)
-  update_buffers()
+  close_tabs_menu(true)
   M.nav_tab(idx, command)
 end
 
@@ -510,7 +459,6 @@ end
 
 function M.nav_tab(id, command)
   log.trace("nav_buf(): Navigating to", id)
-  update_tabs()
 
   if command == nil or command == "tabnext" then
     local tabid = api.get_tab_number(id)
@@ -556,13 +504,11 @@ end
 
 function M.nav_tab_next()
   log.trace("nav_tab_next()")
-  update_tabs()
   vim.cmd("tabnext")
 end
 
 function M.nav_tab_prev()
   log.trace("nav_tab_prev()")
-  update_tabs()
   vim.cmd("tabprev")
 end
 
