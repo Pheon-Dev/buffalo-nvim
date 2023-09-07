@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-<img src="https://i.pinimg.com/136x136/56/d2/8c/56d28c3798343d509e9b51973ee6ce56.jpg" alt="buffalo-nvim" />
+<img src="/buffalo-nvim.png" alt="buffalo-nvim" />
 </p>
 
 This is a [harpoon](https://github.com/ThePrimeagen/harpoon) like plugin that provides an interface
@@ -196,7 +196,9 @@ require("buffalo").setup({
 
 - `BuffaloBorder`
 - `BuffaloWindow`
-- `BuffaloModified`
+- `BuffaloBuffersModified`
+- `BuffaloBuffersCurrentLine`
+- `BuffaloTabsCurrentLine`
 
 ---
 

@@ -284,12 +284,20 @@ function M.toggle_buf_menu()
     vim.api.nvim_buf_add_highlight(
       Buffalo_bufh,
       -1,
-      "BuffaloModified",
+      "BuffaloBuffersModified",
       modified_line - 1,
       0,
       -1
     )
   end
+  vim.api.nvim_buf_add_highlight(
+    Buffalo_bufh,
+    -1,
+    "BuffaloBuffersCurrentLine",
+    current_buf_line - 1,
+    0,
+    -1
+  )
 end
 
 function M.toggle_tab_menu()
@@ -308,21 +316,20 @@ function M.toggle_tab_menu()
   Buffalo_Tabs_win_id = win_info.win_id
   Buffalo_Tabs_bufh = win_info.bufnr
 
-
-  local current_buf_line = 1
-  local modified_lines = {}
-
+  local current_tab_line = 1
 
   for idx = 1, #tabs do
     local current_tab = api.get_tab_number(idx)
     if current_tab == current_tab_id then
-      current_buf_line = idx
+      current_tab_line = idx
     end
     local twins = api.get_tab_wins(idx)
+    local window = #twins > 1 and #twins .. " windows" or #twins .. " window"
+
     if current_tab == 0 then
       return
     end
-    contents[idx] = string.format(" 󰓩 Tab %s [%s window%s]", current_tab, #twins, #twins > 1 and "s" or "")
+    contents[idx] = string.format("Tab %s [%s]", current_tab, window)
   end
 
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_Tabs_win_id })
@@ -332,7 +339,7 @@ function M.toggle_tab_menu()
   vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "filetype", "buffalo")
   vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "buftype", "acwrite")
   vim.api.nvim_buf_set_option(Buffalo_Tabs_bufh, "bufhidden", "delete")
-  vim.cmd(string.format(":call cursor(%d, %d)", current_buf_line, 1))
+  vim.cmd(string.format(":call cursor(%d, %d)", current_tab_line, 1))
   vim.api.nvim_buf_set_keymap(
     Buffalo_Tabs_bufh,
     "n",
@@ -396,6 +403,14 @@ function M.toggle_tab_menu()
       {}
     )
   end
+  vim.api.nvim_buf_add_highlight(
+    Buffalo_Tabs_bufh,
+    -1,
+    "BuffaloTabsCurrentLine",
+    current_tab_line - 1,
+    0,
+    -1
+  )
 end
 
 function M.select_tab_menu_item(command)
