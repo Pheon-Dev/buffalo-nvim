@@ -85,8 +85,11 @@ function M.buffer_is_valid(buf_id, buf_name)
 end
 
 function M.tab_is_valid(tab_id, tab_name)
-  return 1 == vim.api.nvim_tabpage_is_valid(tab_id)
-      and tab_name ~= ""
+  -- return 1 == vim.api.nvim_tabpage_is_valid(tab_id)
+  --     and tab_name ~= ""
+  local valid = vim.api.nvim_tabpage_is_valid(tab_id)
+  if not valid then return -1 end
+  return tab_name ~= ""
 end
 
 -- tbl_deep_extend does not work the way you would think

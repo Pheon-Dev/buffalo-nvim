@@ -160,7 +160,7 @@ require("buffalo").setup({
     }
   },
   general_commands = {
-    cycle = false, -- cycle through the list
+    cycle = true, -- cycle through buffers or tabs
     exit_menu = "x", -- similar to 'q' and '<esc>'
   },
   go_to = {

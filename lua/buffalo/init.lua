@@ -68,16 +68,16 @@ function M.init_tabs()
     local tab_name = api.get_tab_number(tab_id)
     local tab_wins = api.get_wins()
     -- if buffer is listed, then add to contents and marks
-    -- if tab_is_valid(tab_id, tab_name, tab_wins) then
-    table.insert(
-      M.tab_marks,
-      {
-        tab_name = tab_name,
-        tab_id = tab_id,
-        tab_wins = tab_wins,
-      }
-    )
-    -- end
+    if tab_is_valid(tab_id, tab_name) then
+      table.insert(
+        M.tab_marks,
+        {
+          tab_name = tab_name,
+          tab_id = tab_id,
+          tab_wins = tab_wins,
+        }
+      )
+    end
   end
 end
 
