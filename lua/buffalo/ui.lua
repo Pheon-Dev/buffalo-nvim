@@ -315,13 +315,17 @@ function M.toggle_tab_menu()
     if current_tab == current_tab_id then
       current_tab_line = idx
     end
-    local twins = api.get_tab_wins(idx)
-    local window = #twins > 1 and #twins .. " windows" or #twins .. " window"
 
     if current_tab == 0 then
       return
     end
-    contents[idx] = string.format("Tab %s [%s]", current_tab, window)
+    if current_tab > 0 then
+      local twins = api.get_tab_wins(idx)
+      local window = #twins > 1 and "[ " .. #twins .. " windows ]" or "[ " .. #twins .. " window ]"
+      contents[idx] = string.format("Tab %s %s", current_tab, window)
+    else
+      contents[idx] = string.format("Tab [ deleted ]")
+    end
   end
 
   vim.api.nvim_set_option_value("number", true, { win = Buffalo_Tabs_win_id })
@@ -472,6 +476,9 @@ function M.nav_tab(id, command)
     if tabid ~= -1 then
       vim.cmd(tabid .. "tabnext")
     end
+  elseif command == "tabclose" then
+    -- vim.api.nvim_tabpage_del_var(id, "buffalo")
+    vim.cmd(id .. "tabclose")
   else
     vim.cmd(id .. command)
   end
