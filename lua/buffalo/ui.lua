@@ -50,6 +50,7 @@ local function create_window(title)
   local Buffalo_win_id, win = popup.create(bufnr, {
     title = "Buffalo [" .. title .. "]",
     highlight = "BuffaloWindow",
+    titlehighlight = "BuffaloTitle",
     line = math.floor(((vim.o.lines - height) / row) - 1),
     col = math.floor((vim.o.columns - width) / col),
     minwidth = width,
