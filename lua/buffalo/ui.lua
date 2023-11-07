@@ -230,13 +230,23 @@ function M.toggle_buf_menu()
     { silent = true }
   )
   for _, value in pairs(config.buffer_commands) do
-    vim.api.nvim_buf_set_keymap(
-      Buffalo_bufh,
-      "n",
-      value.key,
-      "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
-      {}
-    )
+    if type(value.command) == "string" then
+      vim.api.nvim_buf_set_keymap(
+        Buffalo_bufh,
+        "n",
+        value.key,
+        "<Cmd>lua require('buffalo.ui').select_menu_item('" .. value.command .. "')<CR>",
+        {}
+      )
+    end
+    if type(value.command) == "function" then
+      vim.keymap.set(
+        "n",
+        value.key,
+        value.command,
+        {buffer = Buffalo_bufh }
+      )
+    end
   end
   vim.cmd(
     string.format(
