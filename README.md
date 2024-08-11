@@ -19,7 +19,7 @@ to navigate through buffers or tabs.
 <h3 align="center">
  NOTE:
 </h3>
-<h6>Please note this plugin is still in its early development stages. Breaking changes are to be expected!</h6>
+<h6>Please note that this plugin is still in its early development stages. Breaking changes are to be expected!</h6>
 
 <hr />
 <h5 align="center">
